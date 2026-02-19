@@ -1,14 +1,21 @@
 import { Router } from "express";
-import { requireAuth } from "../../middleware/auth";
+import { Role } from "../../generated/prisma/client";
+import { requireAuth, requireRole } from "../../middleware/auth";
+import { asyncHandler } from "../../utils/async-handler";
+import {
+  createApplication,
+  getApplicationById,
+  listApplications,
+  submitApplication,
+  updateApplication,
+} from "./application.controller";
 
 export const applicationRouter = Router();
 
-applicationRouter.use(requireAuth);
+applicationRouter.use(requireAuth, requireRole(Role.STARTUP));
 
-applicationRouter.get("/", (_req, res) => {
-  return res.status(501).json({
-    success: false,
-    data: null,
-    message: "List applications endpoint not implemented yet",
-  });
-});
+applicationRouter.post("/", asyncHandler(createApplication));
+applicationRouter.get("/", asyncHandler(listApplications));
+applicationRouter.get("/:id", asyncHandler(getApplicationById));
+applicationRouter.patch("/:id", asyncHandler(updateApplication));
+applicationRouter.post("/:id/submit", asyncHandler(submitApplication));
