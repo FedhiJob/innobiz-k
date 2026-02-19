@@ -46,10 +46,10 @@ model User {
 model Application {
   id              String                     @id @default(uuid())
   startupId       String
-  companyName     String
-  sector          String
-  stage           String
-  description     String
+  companyName     String?
+  sector          String?
+  stage           String?
+  description     String?
   teamSize        Int?
   fundingNeeded   Decimal?                   @db.Decimal(12, 2)
   status          ApplicationStatus          @default(DRAFT)
