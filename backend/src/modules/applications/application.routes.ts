@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Role } from "../../generated/prisma/client";
+import { Role } from "@prisma/client";
 import { requireAuth, requireRole } from "../../middleware/auth";
 import { asyncHandler } from "../../utils/async-handler";
 import {
