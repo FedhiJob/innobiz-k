@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { ApplicationStatus, Prisma } from "../../generated/prisma/client";
+import { ApplicationStatus, Prisma } from "@prisma/client";
 import { prisma } from "../../config/prisma";
 import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
