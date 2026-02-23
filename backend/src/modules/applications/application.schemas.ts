@@ -1,4 +1,4 @@
-import { ApplicationStatus } from "../../generated/prisma/client";
+import { ApplicationStatus } from "@prisma/client";
 import { z } from "zod";
 
 const founderSchema = z.object({
