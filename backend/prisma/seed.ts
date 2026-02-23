@@ -1,21 +1,8 @@
 import "dotenv/config";
-import bcrypt from "bcrypt";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
-import { PrismaClient, Role } from "../src/generated/prisma/client";
+import bcrypt from "bcryptjs";
+import { PrismaClient, Role } from "@prisma/client";
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required to run seed");
-}
-
-const pool = new Pool({
-  connectionString: databaseUrl,
-});
-
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 const adminUsers = [
   {
@@ -58,5 +45,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
-    await pool.end();
   });
