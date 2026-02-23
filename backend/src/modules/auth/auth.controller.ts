@@ -1,6 +1,6 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
-import { Role } from "../../generated/prisma/client";
+import { Role } from "@prisma/client";
 import { prisma } from "../../config/prisma";
 import { env } from "../../config/env";
 import { signAccessToken } from "../../middleware/auth";
