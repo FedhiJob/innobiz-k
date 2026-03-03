@@ -9,13 +9,32 @@ import {
   submitApplication,
   updateApplication,
 } from "./application.controller";
+import { deleteDocument, downloadDocument, uploadDocument } from "./document.controller";
+import { upload } from "./document.upload";
 
 export const applicationRouter = Router();
 
-applicationRouter.use(requireAuth, requireRole(Role.STARTUP));
+applicationRouter.use(requireAuth);
 
-applicationRouter.post("/", asyncHandler(createApplication));
-applicationRouter.get("/", asyncHandler(listApplications));
-applicationRouter.get("/:id", asyncHandler(getApplicationById));
-applicationRouter.patch("/:id", asyncHandler(updateApplication));
-applicationRouter.post("/:id/submit", asyncHandler(submitApplication));
+applicationRouter.post("/", requireRole(Role.STARTUP), asyncHandler(createApplication));
+applicationRouter.get("/", requireRole(Role.STARTUP), asyncHandler(listApplications));
+applicationRouter.get("/:id", requireRole(Role.STARTUP), asyncHandler(getApplicationById));
+applicationRouter.patch("/:id", requireRole(Role.STARTUP), asyncHandler(updateApplication));
+applicationRouter.post("/:id/submit", requireRole(Role.STARTUP), asyncHandler(submitApplication));
+
+applicationRouter.post(
+  "/:id/documents",
+  requireRole(Role.STARTUP),
+  upload.single("file"),
+  asyncHandler(uploadDocument),
+);
+applicationRouter.get(
+  "/:id/documents/:docId",
+  requireRole(Role.STARTUP, Role.ADMIN),
+  asyncHandler(downloadDocument),
+);
+applicationRouter.delete(
+  "/:id/documents/:docId",
+  requireRole(Role.STARTUP, Role.ADMIN),
+  asyncHandler(deleteDocument),
+);
