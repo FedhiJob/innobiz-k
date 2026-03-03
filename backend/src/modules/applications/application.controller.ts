@@ -1,9 +1,10 @@
 import type { Request, Response } from "express";
-import { ApplicationStatus, Prisma } from "@prisma/client";
+import { ApplicationStatus, EmailTemplateType, Prisma } from "@prisma/client";
 import { prisma } from "../../config/prisma";
 import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
 import { parsePagination } from "../../utils/pagination";
+import { sendAndLogEmail } from "../../services/email.service";
 import {
   createApplicationSchema,
   listApplicationQuerySchema,
@@ -48,6 +49,7 @@ const ensureDraftSubmittable = (application: {
   teamSize: number | null;
   fundingNeeded: Prisma.Decimal | null;
   founders: Array<{ isPrimary: boolean }>;
+  documents?: Array<unknown>;
 }) => {
   if (
     !application.companyName ||
@@ -68,6 +70,10 @@ const ensureDraftSubmittable = (application: {
   if (primaryFounders.length !== 1) {
     throw new ApiError(400, "Application must include exactly one primary founder.");
   }
+
+  if (application.documents && application.documents.length < 1) {
+    throw new ApiError(400, "Application must include a pitch deck document before submission.");
+  }
 };
 
 export const createApplication = async (req: Request, res: Response) => {
@@ -77,20 +83,10 @@ export const createApplication = async (req: Request, res: Response) => {
 
   const payload = createApplicationSchema.parse(req.body);
   const founders = mapFounderInput(payload.founders);
-  const status = payload.status ?? ApplicationStatus.DRAFT;
-
-  if (status === ApplicationStatus.SUBMITTED) {
-    ensureDraftSubmittable({
-      companyName: payload.companyName ?? null,
-      sector: payload.sector ?? null,
-      stage: payload.stage ?? null,
-      description: payload.description ?? null,
-      teamSize: payload.teamSize ?? null,
-      fundingNeeded:
-        payload.fundingNeeded !== undefined ? new Prisma.Decimal(payload.fundingNeeded) : null,
-      founders: founders?.map((founder) => ({ isPrimary: founder.isPrimary })) ?? [],
-    });
+  if (payload.status === ApplicationStatus.SUBMITTED) {
+    throw new ApiError(400, "Submit the application after uploading documents using /submit.");
   }
+  const status = ApplicationStatus.DRAFT;
 
   const created = await prisma.application.create({
     data: {
@@ -102,23 +98,25 @@ export const createApplication = async (req: Request, res: Response) => {
       teamSize: payload.teamSize ?? null,
       fundingNeeded: toDecimalOrUndefined(payload.fundingNeeded),
       status,
-      submittedAt: status === ApplicationStatus.SUBMITTED ? new Date() : null,
+      submittedAt: null,
       founders: founders ? { create: founders } : undefined,
       statusHistory: {
         create: {
           fromStatus: null,
           toStatus: status,
           changedById: req.user.id,
-          note:
-            status === ApplicationStatus.SUBMITTED
-              ? "Application created and submitted"
-              : "Draft created",
+          note: "Draft created",
         },
       },
     },
     include: {
       founders: true,
       documents: true,
+      startup: {
+        select: {
+          email: true,
+        },
+      },
       statusHistory: {
         orderBy: {
           changedAt: "asc",
@@ -329,6 +327,11 @@ export const submitApplication = async (req: Request, res: Response) => {
           isPrimary: true,
         },
       },
+      documents: {
+        select: {
+          id: true,
+        },
+      },
     },
   });
 
@@ -361,6 +364,11 @@ export const submitApplication = async (req: Request, res: Response) => {
     include: {
       founders: true,
       documents: true,
+      startup: {
+        select: {
+          email: true,
+        },
+      },
       statusHistory: {
         orderBy: {
           changedAt: "asc",
@@ -370,5 +378,13 @@ export const submitApplication = async (req: Request, res: Response) => {
   });
 
   // Email trigger is intentionally deferred until the email service module is implemented.
+  await sendAndLogEmail({
+    applicationId: submitted.id,
+    companyName: submitted.companyName,
+    submittedDate: submitted.submittedAt,
+    recipient: submitted.startup.email,
+    templateType: EmailTemplateType.APPLICATION_RECEIVED,
+  });
+
   return sendSuccess(res, submitted, "Application submitted");
 };
