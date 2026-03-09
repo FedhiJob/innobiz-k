@@ -58,3 +58,13 @@ npm run seed
 ```bash
 npm run dev
 ```
+
+## Integration Tests
+
+1. Configure a database for tests.
+   Use `TEST_DATABASE_URL` in `.env` if you want tests to use a separate database.
+2. Run tests:
+
+```bash
+npm test
+```
