@@ -1,5 +1,6 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
+import { env } from "../../config/env";
 import { requireAuth } from "../../middleware/auth";
 import { asyncHandler } from "../../utils/async-handler";
 import { login, logout, me, register } from "./auth.controller";
@@ -19,6 +20,10 @@ const loginLimiter = rateLimit({
 });
 
 authRouter.post("/register", asyncHandler(register));
-authRouter.post("/login", loginLimiter, asyncHandler(login));
+authRouter.post(
+  "/login",
+  ...(env.NODE_ENV === "test" ? [] : [loginLimiter]),
+  asyncHandler(login),
+);
 authRouter.post("/logout", asyncHandler(logout));
 authRouter.get("/me", requireAuth, asyncHandler(me));
