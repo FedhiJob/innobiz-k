@@ -114,6 +114,82 @@ describe("Application + Admin flow", () => {
     expect(submittedLog).not.toBeNull();
   });
 
+  it("allows startup to delete draft applications and blocks deletion after submission", async () => {
+    const startupEmail = uniqueEmail("startup_delete");
+    const startupPassword = "Password1";
+
+    await request(app).post("/api/auth/register").send({
+      name: "Startup Delete",
+      email: startupEmail,
+      password: startupPassword,
+    });
+
+    const startupLogin = await request(app).post("/api/auth/login").send({
+      email: startupEmail,
+      password: startupPassword,
+    });
+    const startupToken: string = startupLogin.body.data.accessToken;
+
+    const createDraft = await request(app)
+      .post("/api/applications")
+      .set("Authorization", `Bearer ${startupToken}`)
+      .send(createDraftPayload(uniqueEmail("founder_delete")));
+    const draftId: string = createDraft.body.data.id;
+
+    const uploadForDraft = await request(app)
+      .post(`/api/applications/${draftId}/documents`)
+      .set("Authorization", `Bearer ${startupToken}`)
+      .attach("file", fixturePath);
+    expect(uploadForDraft.status).toBe(201);
+
+    const uploadedPath = path.resolve(
+      process.cwd(),
+      String(uploadForDraft.body.data.fileUrl).replace(/\//g, path.sep),
+    );
+    await fs.stat(uploadedPath);
+
+    const deleteDraft = await request(app)
+      .delete(`/api/applications/${draftId}`)
+      .set("Authorization", `Bearer ${startupToken}`);
+
+    expect(deleteDraft.status).toBe(200);
+
+    const [deletedApplication, remainingDocuments] = await Promise.all([
+      prisma.application.findUnique({
+        where: { id: draftId },
+      }),
+      prisma.document.count({
+        where: { applicationId: draftId },
+      }),
+    ]);
+
+    expect(deletedApplication).toBeNull();
+    expect(remainingDocuments).toBe(0);
+    await expect(fs.access(uploadedPath)).rejects.toBeTruthy();
+
+    const createAndSubmit = await request(app)
+      .post("/api/applications")
+      .set("Authorization", `Bearer ${startupToken}`)
+      .send(createDraftPayload(uniqueEmail("founder_submitted_delete")));
+    const submittedId: string = createAndSubmit.body.data.id;
+
+    await request(app)
+      .post(`/api/applications/${submittedId}/documents`)
+      .set("Authorization", `Bearer ${startupToken}`)
+      .attach("file", fixturePath);
+
+    await request(app)
+      .post(`/api/applications/${submittedId}/submit`)
+      .set("Authorization", `Bearer ${startupToken}`);
+
+    const deleteSubmitted = await request(app)
+      .delete(`/api/applications/${submittedId}`)
+      .set("Authorization", `Bearer ${startupToken}`);
+
+    expect(deleteSubmitted.status).toBe(400);
+    expect(deleteSubmitted.body.message).toContain("draft");
+  });
+
   it("allows admin to approve and reject submitted applications and logs emails", async () => {
     const startupEmail = uniqueEmail("startup_admin");
     const startupPassword = "Password1";

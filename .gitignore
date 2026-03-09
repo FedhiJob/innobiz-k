@@ -2,5 +2,6 @@ backend/node_modules
 backend/dist
 backend/.env
 backend/uploads
+backend/src/generated/prisma
 .DS_Store
 *.log

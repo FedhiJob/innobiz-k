@@ -3,7 +3,7 @@ import rateLimit from "express-rate-limit";
 import { env } from "../../config/env";
 import { requireAuth } from "../../middleware/auth";
 import { asyncHandler } from "../../utils/async-handler";
-import { login, logout, me, register } from "./auth.controller";
+import { login, logout, me, register, updateProfile } from "./auth.controller";
 
 export const authRouter = Router();
 
@@ -27,3 +27,4 @@ authRouter.post(
 );
 authRouter.post("/logout", asyncHandler(logout));
 authRouter.get("/me", requireAuth, asyncHandler(me));
+authRouter.patch("/me", requireAuth, asyncHandler(updateProfile));

@@ -6,7 +6,7 @@ import { env } from "../../config/env";
 import { signAccessToken } from "../../middleware/auth";
 import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
-import { loginSchema, registerSchema } from "./auth.schemas";
+import { loginSchema, registerSchema, updateProfileSchema } from "./auth.schemas";
 
 const buildAuthPayload = (user: { id: string; name: string; email: string; role: Role }) => {
   const accessToken = signAccessToken({
@@ -136,6 +136,49 @@ export const me = async (req: Request, res: Response) => {
   }
 
   return sendSuccess(res, user, "Current user fetched");
+};
+
+export const updateProfile = async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  const payload = updateProfileSchema.parse(req.body);
+
+  if (payload.email) {
+    const existing = await prisma.user.findUnique({
+      where: {
+        email: payload.email,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (existing && existing.id !== req.user.id) {
+      throw new ApiError(409, "Email already registered");
+    }
+  }
+
+  const user = await prisma.user.update({
+    where: {
+      id: req.user.id,
+    },
+    data: {
+      name: payload.name,
+      email: payload.email,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  return sendSuccess(res, user, "Profile updated");
 };
 
 export const logout = async (_req: Request, res: Response) => {

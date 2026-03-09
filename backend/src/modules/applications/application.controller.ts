@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { ApplicationStatus, EmailTemplateType, Prisma } from "@prisma/client";
+import fs from "fs/promises";
+import path from "path";
 import { prisma } from "../../config/prisma";
 import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
@@ -11,12 +13,25 @@ import {
   updateApplicationSchema,
 } from "./application.schemas";
 
+const uploadsDir = path.resolve(process.cwd(), "uploads");
+
 const toDecimalOrUndefined = (value?: number) => {
   if (value === undefined) {
     return undefined;
   }
 
   return new Prisma.Decimal(value);
+};
+
+const resolveUploadPath = (fileUrl: string) => {
+  const normalized = fileUrl.replace(/\//g, path.sep);
+  const resolved = path.resolve(process.cwd(), normalized);
+
+  if (!resolved.startsWith(uploadsDir)) {
+    throw new ApiError(400, "Invalid file path");
+  }
+
+  return resolved;
 };
 
 const mapFounderInput = (
@@ -218,6 +233,57 @@ export const updateApplication = async (req: Request, res: Response) => {
   });
 
   return sendSuccess(res, updated, "Draft application updated");
+};
+
+export const deleteApplicationDraft = async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  const applicationId = String(req.params.id);
+
+  const existing = await prisma.application.findFirst({
+    where: {
+      id: applicationId,
+      startupId: req.user.id,
+    },
+    select: {
+      id: true,
+      status: true,
+      documents: {
+        select: {
+          fileUrl: true,
+        },
+      },
+    },
+  });
+
+  if (!existing) {
+    throw new ApiError(404, "Application not found");
+  }
+
+  if (existing.status !== ApplicationStatus.DRAFT) {
+    throw new ApiError(400, "Only draft applications can be deleted");
+  }
+
+  await prisma.application.delete({
+    where: {
+      id: applicationId,
+    },
+  });
+
+  for (const document of existing.documents) {
+    const filePath = resolveUploadPath(document.fileUrl);
+    try {
+      await fs.unlink(filePath);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+        throw error;
+      }
+    }
+  }
+
+  return sendSuccess(res, null, "Draft application deleted");
 };
 
 export const listApplications = async (req: Request, res: Response) => {

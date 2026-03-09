@@ -47,6 +47,50 @@ describe("Auth API", () => {
     expect(meResponse.body.data.role).toBe("STARTUP");
   });
 
+  it("updates profile and allows login with updated email", async () => {
+    const email = uniqueEmail("profile");
+    const password = "Password1";
+    const updatedEmail = uniqueEmail("profile_updated");
+
+    await request(app).post("/api/auth/register").send({
+      name: "Profile User",
+      email,
+      password,
+    });
+
+    const loginResponse = await request(app).post("/api/auth/login").send({
+      email,
+      password,
+    });
+    const accessToken: string = loginResponse.body.data.accessToken;
+
+    const updateResponse = await request(app)
+      .patch("/api/auth/me")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
+        name: "Updated Profile Name",
+        email: updatedEmail,
+      });
+
+    expect(updateResponse.status).toBe(200);
+    expect(updateResponse.body.success).toBe(true);
+    expect(updateResponse.body.data.name).toBe("Updated Profile Name");
+    expect(updateResponse.body.data.email).toBe(updatedEmail);
+
+    const oldLogin = await request(app).post("/api/auth/login").send({
+      email,
+      password,
+    });
+    expect(oldLogin.status).toBe(401);
+
+    const newLogin = await request(app).post("/api/auth/login").send({
+      email: updatedEmail,
+      password,
+    });
+    expect(newLogin.status).toBe(200);
+    expect(newLogin.body.success).toBe(true);
+  });
+
   it("locks account after repeated failed login attempts", async () => {
     const email = uniqueEmail("lockout");
     const password = "Password1";

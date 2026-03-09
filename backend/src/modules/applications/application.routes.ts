@@ -4,6 +4,7 @@ import { requireAuth, requireRole } from "../../middleware/auth";
 import { asyncHandler } from "../../utils/async-handler";
 import {
   createApplication,
+  deleteApplicationDraft,
   getApplicationById,
   listApplications,
   submitApplication,
@@ -20,6 +21,7 @@ applicationRouter.post("/", requireRole(Role.STARTUP), asyncHandler(createApplic
 applicationRouter.get("/", requireRole(Role.STARTUP), asyncHandler(listApplications));
 applicationRouter.get("/:id", requireRole(Role.STARTUP), asyncHandler(getApplicationById));
 applicationRouter.patch("/:id", requireRole(Role.STARTUP), asyncHandler(updateApplication));
+applicationRouter.delete("/:id", requireRole(Role.STARTUP), asyncHandler(deleteApplicationDraft));
 applicationRouter.post("/:id/submit", requireRole(Role.STARTUP), asyncHandler(submitApplication));
 
 applicationRouter.post(
