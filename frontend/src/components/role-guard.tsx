@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
+import { InkLoader } from "@/components/ink-loader";
 import type { Role } from "@/types/api";
 
 interface RoleGuardProps {
@@ -34,9 +35,7 @@ export const RoleGuard = ({ children, roles, unauthorizedPath = "/login" }: Role
 
   if (isLoading || !user || !roles.includes(user.role)) {
     return (
-      <div className="mx-auto flex min-h-[60vh] max-w-6xl items-center justify-center px-4">
-        <div className="panel px-6 py-4 text-sm font-medium text-slate-600">Loading...</div>
-      </div>
+      <InkLoader className="min-h-screen px-4" message="Checking access..." size="md" />
     );
   }
 
