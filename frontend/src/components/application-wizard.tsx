@@ -8,6 +8,7 @@ import { StepIndicator } from "@/components/step-indicator";
 import { FilePicker } from "@/components/file-picker";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDateTime } from "@/lib/format";
+import { InkLoader } from "@/components/ink-loader";
 import type { Application, FounderInput } from "@/types/api";
 
 interface FounderDraft {
@@ -17,6 +18,9 @@ interface FounderDraft {
   role: string;
   isPrimary: boolean;
 }
+
+const allowedDocumentExtensions = [".pdf", ".doc", ".docx", ".ppt", ".pptx"];
+const maxDocumentSize = 10 * 1024 * 1024;
 
 const createEmptyFounder = (isPrimary = false): FounderDraft => ({
   name: "",
@@ -57,6 +61,18 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
   });
 
   const isReadOnly = status !== null && status !== "DRAFT";
+  const hasDocument = documents.length >= 1;
+
+  const validateDocument = (file: File) => {
+    const extension = `.${file.name.split(".").pop()?.toLowerCase() ?? ""}`;
+    if (!allowedDocumentExtensions.includes(extension)) {
+      return "Invalid file type. Allowed: PDF, DOC, DOCX, PPT, PPTX.";
+    }
+    if (file.size > maxDocumentSize) {
+      return "File too large. Max size is 10MB.";
+    }
+    return null;
+  };
 
   useEffect(() => {
     if (!token || !initialApplicationId) {
@@ -216,8 +232,16 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
     if (!selectedFile) {
       throw new Error("Choose a file before uploading.");
     }
+    if (hasDocument) {
+      throw new Error("Only one pitch deck is allowed. Delete the existing document to upload another.");
+    }
     if (!token) {
       throw new Error("Not authenticated");
+    }
+
+    const validationError = validateDocument(selectedFile);
+    if (validationError) {
+      throw new Error(validationError);
     }
 
     setUploading(true);
@@ -276,15 +300,13 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
 
   if (loading) {
     return (
-      <div className="panel p-6 text-sm text-slate-600">
-        <p>Loading application...</p>
-      </div>
+      <InkLoader className="min-h-[40vh]" message="Loading application..." size="md" />
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-brand-slate">Incubation Application</h2>
           <p className="text-sm text-slate-600">Fill the 3-step form, save drafts, upload your pitch deck, and submit.</p>
@@ -372,10 +394,10 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
 
       {step === 2 ? (
         <div className="panel space-y-4 p-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-lg font-semibold text-brand-slate">Step 2: Founder Info</h3>
             <button
-              className="btn-secondary"
+              className="btn-secondary w-full sm:w-auto"
               disabled={isReadOnly || founders.length >= 3}
               onClick={() => setFounders((current) => [...current, createEmptyFounder(false)])}
               type="button"
@@ -508,15 +530,29 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
           {!isReadOnly ? (
             <div className="space-y-3">
               <FilePicker
-                disabled={isReadOnly}
+                disabled={isReadOnly || hasDocument}
                 file={selectedFile}
                 onClear={() => setSelectedFile(null)}
-                onPick={(file) => setSelectedFile(file)}
+                onPick={(file) => {
+                  const validationError = validateDocument(file);
+                  if (validationError) {
+                    setError(validationError);
+                    return;
+                  }
+                  setError(null);
+                  setSelectedFile(file);
+                }}
               />
 
+              {hasDocument ? (
+                <p className="text-sm text-slate-600">
+                  Only one pitch deck is allowed. Delete the existing document to upload a new one.
+                </p>
+              ) : null}
+
               <button
-                className="btn-secondary"
-                disabled={uploading || !selectedFile}
+                className="btn-secondary w-full sm:w-auto"
+                disabled={uploading || !selectedFile || hasDocument}
                 onClick={async () => {
                   setError(null);
                   setMessage(null);
@@ -544,11 +580,11 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
             ) : (
               <div className="space-y-2">
                 {documents.map((document) => (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2" key={document.id}>
+                  <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 sm:flex-row sm:items-center sm:justify-between" key={document.id}>
                     <div>
                       <p className="text-sm font-medium text-slate-800">{document.fileName}</p>
                       <p className="text-xs text-slate-500">
-                        {(document.fileSize / 1024 / 1024).toFixed(2)} MB • uploaded {formatDateTime(document.createdAt)}
+                        {(document.fileSize / 1024 / 1024).toFixed(2)} MB - uploaded {formatDateTime(document.createdAt)}
                       </p>
                     </div>
                     {!isReadOnly ? (
@@ -585,10 +621,10 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
         </div>
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <button
-            className="btn-secondary"
+            className="btn-secondary w-full sm:w-auto"
             disabled={step === 1}
             onClick={() => setStep((current) => (current === 1 ? 1 : ((current - 1) as 1 | 2 | 3)))}
             type="button"
@@ -596,7 +632,7 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
             Previous
           </button>
           <button
-            className="btn-secondary"
+            className="btn-secondary w-full sm:w-auto"
             disabled={step === 3}
             onClick={() => {
               try {
@@ -618,11 +654,11 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
           </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           {!isReadOnly ? (
             <>
               <button
-                className="btn-primary"
+                className="btn-primary w-full sm:w-auto"
                 disabled={saving}
                 onClick={async () => {
                   setError(null);
@@ -644,7 +680,7 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
 
               {step === 3 ? (
                 <button
-                  className="btn-primary"
+                  className="btn-primary w-full sm:w-auto"
                   disabled={submitting}
                   onClick={async () => {
                     setError(null);
@@ -667,7 +703,7 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
 
               {applicationId ? (
                 <button
-                  className="btn-danger"
+                  className="btn-danger w-full sm:w-auto"
                   disabled={deleting}
                   onClick={async () => {
                     if (!token || !applicationId) {
@@ -696,7 +732,7 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
               ) : null}
             </>
           ) : (
-            <button className="btn-secondary" onClick={() => router.push("/dashboard")} type="button">
+            <button className="btn-secondary w-full sm:w-auto" onClick={() => router.push("/dashboard")} type="button">
               Back to Dashboard
             </button>
           )}
@@ -709,9 +745,7 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
           <div className="mt-3 space-y-2">
             {statusHistory.map((entry) => (
               <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm" key={entry.id}>
-                <p className="font-medium text-slate-800">
-                  {entry.fromStatus ?? "NEW"} → {entry.toStatus}
-                </p>
+                <p className="font-medium text-slate-800">{entry.fromStatus ?? "NEW"} -> {entry.toStatus}</p>
                 <p className="text-slate-600">{entry.note ?? "No note"}</p>
                 <p className="text-xs text-slate-500">{formatDateTime(entry.changedAt)}</p>
               </div>
