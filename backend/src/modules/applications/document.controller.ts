@@ -5,8 +5,22 @@ import fs from "fs/promises";
 import { prisma } from "../../config/prisma";
 import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
+import { documentUploadConfig } from "./document.upload";
 
 const uploadsDir = path.resolve(process.cwd(), "uploads");
+
+const sanitizeFileName = (originalName: string) => {
+  const base = path.basename(originalName);
+  const ext = path.extname(base).toLowerCase();
+  const nameOnly = path
+    .basename(base, ext)
+    .replace(/[^A-Za-z0-9 _.-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const safeBase = nameOnly.length > 0 ? nameOnly : "document";
+  const trimmed = safeBase.slice(0, 80);
+  return `${trimmed}${ext}`;
+};
 
 const resolveFilePath = (fileUrl: string) => {
   const normalized = fileUrl.replace(/\//g, path.sep);
@@ -59,6 +73,11 @@ export const uploadDocument = async (req: Request, res: Response) => {
     select: {
       id: true,
       status: true,
+      _count: {
+        select: {
+          documents: true,
+        },
+      },
     },
   });
 
@@ -74,12 +93,21 @@ export const uploadDocument = async (req: Request, res: Response) => {
     throw new ApiError(400, "File is required");
   }
 
+  if (application._count.documents >= 1) {
+    throw new ApiError(400, "Only one pitch deck document is allowed. Delete the existing document to upload another.");
+  }
+
+  if (req.file.size > documentUploadConfig.maxFileSize) {
+    throw new ApiError(400, "File too large. Max size is 10MB.");
+  }
+
+  const safeFileName = sanitizeFileName(req.file.originalname);
   const fileUrl = path.posix.join("uploads", req.file.filename);
 
   const document = await prisma.document.create({
     data: {
       applicationId,
-      fileName: req.file.originalname,
+      fileName: safeFileName,
       fileUrl,
       fileSize: req.file.size,
       mimeType: req.file.mimetype,
