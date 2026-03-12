@@ -7,6 +7,7 @@ import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
 import { parsePagination } from "../../utils/pagination";
 import { sendAndLogEmail } from "../../services/email.service";
+import { assertStatusTransition } from "../../utils/status-transition";
 import {
   createApplicationSchema,
   listApplicationQuerySchema,
@@ -66,6 +67,10 @@ const ensureDraftSubmittable = (application: {
   founders: Array<{ isPrimary: boolean }>;
   documents?: Array<unknown>;
 }) => {
+  if (application.description && application.description.trim().length < 20) {
+    throw new ApiError(400, "Application description must be at least 20 characters.");
+  }
+
   if (
     !application.companyName ||
     !application.sector ||
@@ -77,6 +82,14 @@ const ensureDraftSubmittable = (application: {
     throw new ApiError(400, "Application is incomplete. Fill all required fields before submitting.");
   }
 
+  if (application.teamSize <= 0) {
+    throw new ApiError(400, "Team size must be greater than 0.");
+  }
+
+  if (application.fundingNeeded.lte(0)) {
+    throw new ApiError(400, "Funding needed must be greater than 0.");
+  }
+
   if (application.founders.length < 1 || application.founders.length > 3) {
     throw new ApiError(400, "Application must include between 1 and 3 founders.");
   }
@@ -86,8 +99,8 @@ const ensureDraftSubmittable = (application: {
     throw new ApiError(400, "Application must include exactly one primary founder.");
   }
 
-  if (application.documents && application.documents.length < 1) {
-    throw new ApiError(400, "Application must include a pitch deck document before submission.");
+  if (application.documents && application.documents.length !== 1) {
+    throw new ApiError(400, "Application must include exactly one pitch deck document before submission.");
   }
 };
 
@@ -405,9 +418,11 @@ export const submitApplication = async (req: Request, res: Response) => {
     throw new ApiError(404, "Application not found");
   }
 
-  if (existing.status !== ApplicationStatus.DRAFT) {
-    throw new ApiError(400, "Only draft applications can be submitted");
-  }
+  assertStatusTransition(
+    existing.status,
+    ApplicationStatus.SUBMITTED,
+    "Only draft applications can be submitted",
+  );
 
   ensureDraftSubmittable(existing);
 
