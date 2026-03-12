@@ -6,6 +6,7 @@ import { adminApi, ApiHttpError } from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDateTime } from "@/lib/format";
+import { InkLoader } from "@/components/ink-loader";
 import type { AdminStats, PaginatedAdminApplications } from "@/types/api";
 
 export default function AdminDashboardPage() {
@@ -46,18 +47,18 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-brand-ink">Admin Dashboard</h2>
           <p className="text-sm text-slate-600">Review queue and decision metrics.</p>
         </div>
-        <Link className="btn-primary" href="/admin/applications?status=SUBMITTED">
+        <Link className="btn-primary w-full sm:w-auto" href="/admin/applications?status=SUBMITTED">
           Open Review Queue
         </Link>
       </div>
 
       {loading ? (
-        <div className="panel p-5 text-sm text-slate-600">Loading dashboard...</div>
+        <InkLoader className="min-h-[40vh]" message="Loading dashboard..." size="md" />
       ) : error ? (
         <div className="rounded-lg border border-brand-red/20 bg-brand-red/10 px-4 py-3 text-sm text-brand-red">
           {error}
@@ -88,36 +89,57 @@ export default function AdminDashboardPage() {
         {recent.length === 0 ? (
           <div className="px-4 py-5 text-sm text-slate-600">No applications found.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-slate-50 text-left text-slate-600">
-                <tr>
-                  <th className="px-4 py-3">Company</th>
-                  <th className="px-4 py-3">Startup</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Submitted</th>
-                  <th className="px-4 py-3">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recent.map((item) => (
-                  <tr className="border-t border-slate-100" key={item.id}>
-                    <td className="px-4 py-3 font-medium text-slate-800">{item.companyName ?? "Untitled"}</td>
-                    <td className="px-4 py-3 text-slate-700">{item.startup.email}</td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={item.status} />
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">{formatDateTime(item.submittedAt)}</td>
-                    <td className="px-4 py-3">
-                      <Link className="font-semibold text-brand-blue" href={`/admin/applications/${item.id}`}>
-                        Review
-                      </Link>
-                    </td>
+          <>
+            <div className="space-y-3 px-4 py-4 sm:hidden">
+              {recent.map((item) => (
+                <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm" key={item.id}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{item.companyName ?? "Untitled"}</p>
+                      <p className="text-xs text-slate-500">{item.startup.email}</p>
+                    </div>
+                    <StatusBadge status={item.status} />
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+                    <span>Submitted {formatDateTime(item.submittedAt)}</span>
+                    <Link className="text-sm font-semibold text-brand-blue" href={`/admin/applications/${item.id}`}>
+                      Review
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="hidden overflow-x-auto sm:block">
+              <table className="min-w-full text-sm">
+                <thead className="bg-slate-50 text-left text-slate-600">
+                  <tr>
+                    <th className="px-4 py-3">Company</th>
+                    <th className="px-4 py-3">Startup</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Submitted</th>
+                    <th className="px-4 py-3">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {recent.map((item) => (
+                    <tr className="border-t border-slate-100" key={item.id}>
+                      <td className="px-4 py-3 font-medium text-slate-800">{item.companyName ?? "Untitled"}</td>
+                      <td className="px-4 py-3 text-slate-700">{item.startup.email}</td>
+                      <td className="px-4 py-3">
+                        <StatusBadge status={item.status} />
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">{formatDateTime(item.submittedAt)}</td>
+                      <td className="px-4 py-3">
+                        <Link className="font-semibold text-brand-blue" href={`/admin/applications/${item.id}`}>
+                          Review
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>
