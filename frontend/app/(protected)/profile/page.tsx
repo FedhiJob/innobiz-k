@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ApiHttpError } from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
 
 export default function ProfilePage() {
-  const { user, updateProfile } = useAuth();
+  const router = useRouter();
+  const { user, updateProfile, logout } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
@@ -21,10 +23,33 @@ export default function ProfilePage() {
   }, [user]);
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-brand-slate">Profile</h2>
-        <p className="text-sm text-slate-600">Update your account information.</p>
+    <div className="mx-auto w-full max-w-2xl space-y-6">
+      <div className="flex items-center gap-3">
+        <img alt="InnoBiz-K Ethiopia" className="h-10 w-auto" src="/ink-logo.png" />
+        <div>
+          <h2 className="text-2xl font-bold text-brand-slate">Profile</h2>
+          <p className="text-sm text-slate-600">Update your account information.</p>
+        </div>
+      </div>
+
+      <div className="panel space-y-4 p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Account</p>
+            <p className="text-lg font-semibold text-brand-ink">{user?.name}</p>
+            <p className="text-sm text-slate-600">{user?.email}</p>
+          </div>
+          <button
+            className="btn-secondary w-full sm:w-auto"
+            onClick={async () => {
+              await logout();
+              router.replace("/login");
+            }}
+            type="button"
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       <div className="panel p-6">
@@ -79,7 +104,7 @@ export default function ProfilePage() {
           {message ? <p className="rounded-lg bg-brand-green/10 px-3 py-2 text-sm font-medium text-brand-green">{message}</p> : null}
           {error ? <p className="rounded-lg bg-brand-red/10 px-3 py-2 text-sm font-medium text-brand-red">{error}</p> : null}
 
-          <button className="btn-primary" disabled={saving} type="submit">
+          <button className="btn-primary w-full sm:w-auto" disabled={saving} type="submit">
             {saving ? "Saving..." : "Save Changes"}
           </button>
         </form>
