@@ -18,6 +18,8 @@ const allowedMimeTypes = new Set([
 
 const allowedExtensions = new Set([".pdf", ".doc", ".docx", ".ppt", ".pptx"]);
 
+const maxFileSize = 10 * 1024 * 1024;
+
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
     cb(null, uploadsDir);
@@ -42,7 +44,13 @@ const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
 export const upload = multer({
   storage,
   limits: {
-    fileSize: 10 * 1024 * 1024,
+    fileSize: maxFileSize,
   },
   fileFilter,
 });
+
+export const documentUploadConfig = {
+  maxFileSize,
+  allowedExtensions,
+  allowedMimeTypes,
+};
