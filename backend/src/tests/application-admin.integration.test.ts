@@ -7,6 +7,8 @@ import { prisma } from "../config/prisma";
 import { cleanupTestData, createAdminUser, uniqueEmail } from "./helpers";
 
 const fixturePath = path.resolve(process.cwd(), "src/tests/fixtures/pitch-deck.pdf");
+const invalidFixturePath = path.resolve(process.cwd(), "src/tests/fixtures/invalid.txt");
+const largeFixturePath = path.resolve(process.cwd(), "src/tests/fixtures/large-pitch-deck.pdf");
 
 const createDraftPayload = (email: string) => ({
   companyName: "InnoBiz Test Company",
@@ -29,6 +31,9 @@ describe("Application + Admin flow", () => {
   beforeAll(async () => {
     await fs.mkdir(path.dirname(fixturePath), { recursive: true });
     await fs.writeFile(fixturePath, "integration test pitch deck");
+    await fs.writeFile(invalidFixturePath, "not a valid pitch deck");
+    const largeBuffer = Buffer.alloc(10 * 1024 * 1024 + 1, "a");
+    await fs.writeFile(largeFixturePath, largeBuffer);
   });
 
   beforeEach(async () => {
@@ -39,6 +44,8 @@ describe("Application + Admin flow", () => {
     await cleanupTestData();
     try {
       await fs.unlink(fixturePath);
+      await fs.unlink(invalidFixturePath);
+      await fs.unlink(largeFixturePath);
     } catch {
       // no-op
     }
@@ -307,5 +314,73 @@ describe("Application + Admin flow", () => {
       "SUBMITTED",
       "REJECTED",
     ]);
+  });
+
+  it("enforces document upload rules and blocks invalid or oversized files", async () => {
+    const startupEmail = uniqueEmail("startup_docs");
+    const startupPassword = "Password1";
+
+    await request(app).post("/api/auth/register").send({
+      name: "Startup Docs",
+      email: startupEmail,
+      password: startupPassword,
+    });
+
+    const startupLogin = await request(app).post("/api/auth/login").send({
+      email: startupEmail,
+      password: startupPassword,
+    });
+    const startupToken: string = startupLogin.body.data.accessToken;
+
+    const createDraft = await request(app)
+      .post("/api/applications")
+      .set("Authorization", `Bearer ${startupToken}`)
+      .send(createDraftPayload(uniqueEmail("founder_docs")));
+    const draftId: string = createDraft.body.data.id;
+
+    const invalidUpload = await request(app)
+      .post(`/api/applications/${draftId}/documents`)
+      .set("Authorization", `Bearer ${startupToken}`)
+      .attach("file", invalidFixturePath);
+
+    expect(invalidUpload.status).toBe(400);
+    expect(invalidUpload.body.message).toContain("Invalid file type");
+
+    const largeUpload = await request(app)
+      .post(`/api/applications/${draftId}/documents`)
+      .set("Authorization", `Bearer ${startupToken}`)
+      .attach("file", largeFixturePath);
+
+    expect(largeUpload.status).toBe(400);
+    expect(largeUpload.body.message).toContain("File too large");
+
+    const validUpload = await request(app)
+      .post(`/api/applications/${draftId}/documents`)
+      .set("Authorization", `Bearer ${startupToken}`)
+      .attach("file", fixturePath);
+
+    expect(validUpload.status).toBe(201);
+
+    const secondUpload = await request(app)
+      .post(`/api/applications/${draftId}/documents`)
+      .set("Authorization", `Bearer ${startupToken}`)
+      .attach("file", fixturePath);
+
+    expect(secondUpload.status).toBe(400);
+    expect(secondUpload.body.message).toContain("Only one pitch deck");
+
+    const submitResponse = await request(app)
+      .post(`/api/applications/${draftId}/submit`)
+      .set("Authorization", `Bearer ${startupToken}`);
+
+    expect(submitResponse.status).toBe(200);
+
+    const uploadAfterSubmit = await request(app)
+      .post(`/api/applications/${draftId}/documents`)
+      .set("Authorization", `Bearer ${startupToken}`)
+      .attach("file", fixturePath);
+
+    expect(uploadAfterSubmit.status).toBe(400);
+    expect(uploadAfterSubmit.body.message).toContain("only be uploaded while application is in draft");
   });
 });
