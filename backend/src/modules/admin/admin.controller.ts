@@ -5,6 +5,7 @@ import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
 import { parsePagination } from "../../utils/pagination";
 import { sendAndLogEmail } from "../../services/email.service";
+import { assertStatusTransition } from "../../utils/status-transition";
 import { adminListQuerySchema, approveSchema, rejectSchema } from "./admin.schemas";
 
 export const getAdminStats = async (_req: Request, res: Response) => {
@@ -165,9 +166,11 @@ export const approveApplication = async (req: Request, res: Response) => {
     throw new ApiError(404, "Application not found");
   }
 
-  if (existing.status !== ApplicationStatus.SUBMITTED) {
-    throw new ApiError(400, "Only submitted applications can be approved");
-  }
+  assertStatusTransition(
+    existing.status,
+    ApplicationStatus.APPROVED,
+    "Only submitted applications can be approved",
+  );
 
   const updated = await prisma.application.update({
     where: {
@@ -238,9 +241,11 @@ export const rejectApplication = async (req: Request, res: Response) => {
     throw new ApiError(404, "Application not found");
   }
 
-  if (existing.status !== ApplicationStatus.SUBMITTED) {
-    throw new ApiError(400, "Only submitted applications can be rejected");
-  }
+  assertStatusTransition(
+    existing.status,
+    ApplicationStatus.REJECTED,
+    "Only submitted applications can be rejected",
+  );
 
   const updated = await prisma.application.update({
     where: {
