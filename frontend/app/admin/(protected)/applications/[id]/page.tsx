@@ -7,6 +7,7 @@ import { adminApi, ApiHttpError } from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
 import { formatDateTime } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
+import { InkLoader } from "@/components/ink-loader";
 import type { AdminApplicationDetail } from "@/types/api";
 
 export default function AdminApplicationDetailPage({ params }: { params: { id: string } }) {
@@ -90,7 +91,7 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
         </Link>
       </div>
 
-      {loading ? <div className="panel p-5 text-sm text-slate-600">Loading...</div> : null}
+      {loading ? <InkLoader className="min-h-[40vh]" message="Loading application..." size="md" /> : null}
       {error ? (
         <div className="rounded-lg border border-brand-red/20 bg-brand-red/10 px-4 py-3 text-sm text-brand-red">
           {error}
@@ -144,12 +145,12 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
             <h3 className="text-lg font-semibold text-brand-ink">Founders</h3>
             <div className="mt-3 grid gap-3">
               {application.founders.map((founder) => (
-                <div className="rounded-lg border border-slate-200 p-3" key={founder.id}>
+                <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3" key={founder.id}>
                   <p className="text-sm font-semibold text-slate-800">
                     {founder.name} {founder.isPrimary ? "(Primary)" : ""}
                   </p>
                   <p className="text-xs text-slate-600">
-                    {founder.email} • {founder.role} • {founder.phone || "-"}
+                    {founder.email} - {founder.role} - {founder.phone || "-"}
                   </p>
                 </div>
               ))}
@@ -163,13 +164,16 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
                 <p className="text-sm text-slate-600">No uploaded documents.</p>
               ) : (
                 application.documents.map((document) => (
-                  <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3" key={document.id}>
+                  <div
+                    className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                    key={document.id}
+                  >
                     <div>
                       <p className="text-sm font-medium text-slate-800">{document.fileName}</p>
                       <p className="text-xs text-slate-600">{(document.fileSize / 1024 / 1024).toFixed(2)} MB</p>
                     </div>
                     <button
-                      className="btn-secondary"
+                      className="btn-secondary w-full sm:w-auto"
                       onClick={() => void downloadDocument(document.id, document.fileName)}
                       type="button"
                     >
@@ -186,9 +190,7 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
             <div className="mt-3 space-y-2">
               {application.statusHistory.map((entry) => (
                 <div className="rounded-lg border border-slate-200 bg-slate-50 p-3" key={entry.id}>
-                  <p className="text-sm font-medium text-slate-800">
-                    {entry.fromStatus ?? "NEW"} → {entry.toStatus}
-                  </p>
+                  <p className="text-sm font-medium text-slate-800">{entry.fromStatus ?? "NEW"} -> {entry.toStatus}</p>
                   <p className="text-xs text-slate-600">{entry.note ?? "No note"}</p>
                   <p className="text-xs text-slate-500">{formatDateTime(entry.changedAt)}</p>
                 </div>
@@ -201,9 +203,9 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
             <p className="mt-1 text-sm text-slate-600">
               Only submitted applications can be approved or rejected.
             </p>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
               <button
-                className="btn-primary"
+                className="btn-primary w-full sm:w-auto"
                 disabled={!canReview}
                 onClick={() => setApproveOpen(true)}
                 type="button"
@@ -211,7 +213,7 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
                 Approve
               </button>
               <button
-                className="btn-danger"
+                className="btn-danger w-full sm:w-auto"
                 disabled={!canReview}
                 onClick={() => setRejectOpen(true)}
                 type="button"
@@ -242,12 +244,12 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
                   placeholder="Admin notes (optional)"
                   value={approveNotes}
                 />
-                <div className="mt-4 flex justify-end gap-2">
-                  <button className="btn-secondary" onClick={() => setApproveOpen(false)} type="button">
+                <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                  <button className="btn-secondary w-full sm:w-auto" onClick={() => setApproveOpen(false)} type="button">
                     Cancel
                   </button>
                   <button
-                    className="btn-primary"
+                    className="btn-primary w-full sm:w-auto"
                     disabled={actionLoading}
                     onClick={async () => {
                       if (!token) {
@@ -305,12 +307,12 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
                   placeholder="Admin notes (optional)"
                   value={rejectNotes}
                 />
-                <div className="mt-4 flex justify-end gap-2">
-                  <button className="btn-secondary" onClick={() => setRejectOpen(false)} type="button">
+                <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                  <button className="btn-secondary w-full sm:w-auto" onClick={() => setRejectOpen(false)} type="button">
                     Cancel
                   </button>
                   <button
-                    className="btn-danger"
+                    className="btn-danger w-full sm:w-auto"
                     disabled={actionLoading || rejectReason.trim().length < 3}
                     onClick={async () => {
                       if (!token) {
