@@ -1,0 +1,153 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 7 0 R /F2 8 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 2198 >>
+stream
+BT
+/F1 12 Tf
+16 TL
+72 708 Td
+/F2 12 Tf
+(InnoBiz-K Incubation Portal) Tj
+T*
+/F1 12 Tf
+(Date: March 12, 2026) Tj
+T*
+(Prepared by: Fedasa Eyob, Full Stack Developer) Tj
+T*
+() Tj
+T*
+/F2 12 Tf
+(Executive Summary) Tj
+T*
+/F1 12 Tf
+(? The MVP is functionally complete and running in the development environment.) Tj
+T*
+(? Startup users can register, submit applications, upload documents, and track status.) Tj
+T*
+(? Administrators can review applications, approve or reject submissions, and view) Tj
+T*
+(  dashboard metrics.) Tj
+T*
+(? Current efforts are focused on validation hardening, final QA, and production) Tj
+T*
+(  readiness.) Tj
+T*
+() Tj
+T*
+/F2 12 Tf
+(Work Completed) Tj
+T*
+/F1 12 Tf
+(? Authentication for Startup and Admin roles.) Tj
+T*
+(? Three-step application flow with draft save/resume.) Tj
+T*
+(? Admin review workflow with decision logging.) Tj
+T*
+(? Document upload and secure access controls \(local storage\).) Tj
+T*
+(? Email templates prepared; delivery logs stored.) Tj
+T*
+(? Brand-aligned UI with mobile-first responsive layouts.) Tj
+T*
+(? PostgreSQL database with Prisma migrations and seed data.) Tj
+T*
+() Tj
+T*
+/F2 12 Tf
+(Work In Progress / Next Steps) Tj
+T*
+/F1 12 Tf
+(? Document validation: enforce file type, size, and safe naming.) Tj
+T*
+(? Server-side submission validation for all required fields and founder rules.) Tj
+T*
+(? Status history consistency on all state transitions.) Tj
+T*
+(? End-to-end testing of upload and admin review flows.) Tj
+T*
+(? Production configuration \(SMTP, hosting, storage strategy\).) Tj
+T*
+() Tj
+T*
+/F2 12 Tf
+(Risks and Dependencies) Tj
+T*
+/F1 12 Tf
+(? Production SMTP credentials are required for live email delivery.) Tj
+T*
+(? Hosting decision affects final configuration and deployment steps.) Tj
+T*
+(? If cloud storage is chosen, additional setup will be required.) Tj
+T*
+() Tj
+T*
+/F2 12 Tf
+(Items Required from Client) Tj
+T*
+/F1 12 Tf
+(? Official logo assets \(SVG/PNG\) for final UI placement.) Tj
+T*
+(? SMTP account details for email delivery.) Tj
+T*
+(? Hosting choice \(e.g., Vercel, Render, or custom server\).) Tj
+T*
+() Tj
+T*
+/F2 12 Tf
+(Proposed Timeline) Tj
+T*
+/F1 12 Tf
+(? 1-2 days: validation hardening and document checks.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 7 0 R /F2 8 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 147 >>
+stream
+BT
+/F1 12 Tf
+16 TL
+72 708 Td
+(? 2 to 3 weeks: testing and QA pass.) Tj
+T*
+(? 1 day: deployment configuration and go-live checklist.) Tj
+T*
+() Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+8 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000257 00000 n 
+0000002507 00000 n 
+0000002643 00000 n 
+0000002841 00000 n 
+0000002911 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R >>
+startxref
+2986
+%%EOF
