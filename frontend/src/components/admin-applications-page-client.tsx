@@ -7,6 +7,7 @@ import { adminApi, ApiHttpError } from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
 import { formatDateTime } from "@/lib/format";
 import { StatusBadge } from "@/components/status-badge";
+import { InkLoader } from "@/components/ink-loader";
 import type { ApplicationStatus, PaginatedAdminApplications } from "@/types/api";
 
 const statusOptions: Array<{ label: string; value: "" | ApplicationStatus }> = [
@@ -105,9 +106,9 @@ export const AdminApplicationsPageClient = () => {
             ))}
           </select>
         </div>
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
           <button
-            className="btn-primary"
+            className="btn-primary w-full sm:w-auto"
             onClick={() =>
               updateQuery({
                 search: inputSearch.trim().length >= 2 ? inputSearch.trim() : undefined,
@@ -119,7 +120,7 @@ export const AdminApplicationsPageClient = () => {
             Apply
           </button>
           <button
-            className="btn-secondary"
+            className="btn-secondary w-full sm:w-auto"
             onClick={() => {
               setInputSearch("");
               router.push("/admin/applications");
@@ -133,52 +134,75 @@ export const AdminApplicationsPageClient = () => {
 
       <div className="panel overflow-hidden">
         {loading ? (
-          <div className="px-4 py-5 text-sm text-slate-600">Loading...</div>
+          <div className="px-4 py-8">
+            <InkLoader message="Loading applications..." size="sm" />
+          </div>
         ) : error ? (
           <div className="px-4 py-5 text-sm font-medium text-brand-red">{error}</div>
         ) : data && data.items.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-slate-50 text-left text-slate-600">
-                <tr>
-                  <th className="px-4 py-3">Company</th>
-                  <th className="px-4 py-3">Startup</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Submitted</th>
-                  <th className="px-4 py-3">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.items.map((item) => (
-                  <tr className="border-t border-slate-100" key={item.id}>
-                    <td className="px-4 py-3 font-medium text-slate-800">{item.companyName ?? "Untitled"}</td>
-                    <td className="px-4 py-3 text-slate-700">{item.startup.email}</td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={item.status} />
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">{formatDateTime(item.submittedAt)}</td>
-                    <td className="px-4 py-3">
-                      <Link className="font-semibold text-brand-blue" href={`/admin/applications/${item.id}`}>
-                        View
-                      </Link>
-                    </td>
+          <>
+            <div className="space-y-3 px-4 py-4 sm:hidden">
+              {data.items.map((item) => (
+                <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm" key={item.id}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{item.companyName ?? "Untitled"}</p>
+                      <p className="text-xs text-slate-500">{item.startup.email}</p>
+                    </div>
+                    <StatusBadge status={item.status} />
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+                    <span>Submitted {formatDateTime(item.submittedAt)}</span>
+                    <Link className="text-sm font-semibold text-brand-blue" href={`/admin/applications/${item.id}`}>
+                      View
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="hidden overflow-x-auto sm:block">
+              <table className="min-w-full text-sm">
+                <thead className="bg-slate-50 text-left text-slate-600">
+                  <tr>
+                    <th className="px-4 py-3">Company</th>
+                    <th className="px-4 py-3">Startup</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Submitted</th>
+                    <th className="px-4 py-3">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {data.items.map((item) => (
+                    <tr className="border-t border-slate-100" key={item.id}>
+                      <td className="px-4 py-3 font-medium text-slate-800">{item.companyName ?? "Untitled"}</td>
+                      <td className="px-4 py-3 text-slate-700">{item.startup.email}</td>
+                      <td className="px-4 py-3">
+                        <StatusBadge status={item.status} />
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">{formatDateTime(item.submittedAt)}</td>
+                      <td className="px-4 py-3">
+                        <Link className="font-semibold text-brand-blue" href={`/admin/applications/${item.id}`}>
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         ) : (
           <div className="px-4 py-5 text-sm text-slate-600">No matching applications.</div>
         )}
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-slate-600">
           Page {data?.pagination.page ?? page} of {totalPages}
         </p>
-        <div className="flex gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <button
-            className="btn-secondary"
+            className="btn-secondary w-full sm:w-auto"
             disabled={page <= 1}
             onClick={() => updateQuery({ page: Math.max(1, page - 1) })}
             type="button"
@@ -186,7 +210,7 @@ export const AdminApplicationsPageClient = () => {
             Previous
           </button>
           <button
-            className="btn-secondary"
+            className="btn-secondary w-full sm:w-auto"
             disabled={page >= totalPages}
             onClick={() => updateQuery({ page: Math.min(totalPages, page + 1) })}
             type="button"
