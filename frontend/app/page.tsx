@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
+import { InkLoader } from "@/components/ink-loader";
 
 export default function HomePage() {
   const router = useRouter();
@@ -19,8 +20,6 @@ export default function HomePage() {
   }, [isLoading, user, router]);
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
-      <div className="panel px-8 py-6 text-sm font-medium text-slate-600">Loading...</div>
-    </div>
+    <InkLoader className="min-h-screen px-4" message="Starting your session..." size="lg" />
   );
 }
