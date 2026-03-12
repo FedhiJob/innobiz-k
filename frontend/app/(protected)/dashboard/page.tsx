@@ -6,6 +6,7 @@ import { ApiHttpError, applicationApi } from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDateTime } from "@/lib/format";
+import { InkLoader } from "@/components/ink-loader";
 import type { ApplicationStatus, PaginatedApplications } from "@/types/api";
 
 const statuses: ApplicationStatus[] = ["DRAFT", "SUBMITTED", "APPROVED", "REJECTED"];
@@ -54,12 +55,12 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-brand-slate">Startup Dashboard</h2>
           <p className="text-sm text-slate-600">Track your applications and continue drafts.</p>
         </div>
-        <Link className="btn-primary" href="/application/new">
+        <Link className="btn-primary w-full sm:w-auto" href="/application/new">
           New Application
         </Link>
       </div>
@@ -79,40 +80,67 @@ export default function DashboardPage() {
         </div>
 
         {loading ? (
-          <div className="px-4 py-6 text-sm text-slate-600">Loading applications...</div>
+          <div className="px-4 py-8">
+            <InkLoader message="Loading applications..." size="sm" />
+          </div>
         ) : error ? (
           <div className="px-4 py-6 text-sm font-medium text-brand-red">{error}</div>
         ) : data && data.items.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-slate-50 text-left text-slate-600">
-                <tr>
-                  <th className="px-4 py-3">Company</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Submitted</th>
-                  <th className="px-4 py-3">Updated</th>
-                  <th className="px-4 py-3">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.items.map((item) => (
-                  <tr className="border-t border-slate-100" key={item.id}>
-                    <td className="px-4 py-3 font-medium text-slate-800">{item.companyName ?? "Untitled Draft"}</td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={item.status} />
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">{formatDateTime(item.submittedAt)}</td>
-                    <td className="px-4 py-3 text-slate-600">{formatDateTime(item.updatedAt)}</td>
-                    <td className="px-4 py-3">
-                      <Link className="font-semibold text-brand-blue" href={`/application/${item.id}`}>
-                        {item.status === "DRAFT" ? "Continue Draft" : "View"}
-                      </Link>
-                    </td>
+          <>
+            <div className="space-y-3 px-4 py-4 sm:hidden">
+              {data.items.map((item) => (
+                <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm" key={item.id}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">
+                        {item.companyName ?? "Untitled Draft"}
+                      </p>
+                      <p className="text-xs text-slate-500">Updated {formatDateTime(item.updatedAt)}</p>
+                    </div>
+                    <StatusBadge status={item.status} />
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+                    <span>Submitted {formatDateTime(item.submittedAt)}</span>
+                    <Link className="text-sm font-semibold text-brand-blue" href={`/application/${item.id}`}>
+                      {item.status === "DRAFT" ? "Continue" : "View"}
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="hidden overflow-x-auto sm:block">
+              <table className="min-w-full text-sm">
+                <thead className="bg-slate-50 text-left text-slate-600">
+                  <tr>
+                    <th className="px-4 py-3">Company</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Submitted</th>
+                    <th className="px-4 py-3">Updated</th>
+                    <th className="px-4 py-3">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {data.items.map((item) => (
+                    <tr className="border-t border-slate-100" key={item.id}>
+                      <td className="px-4 py-3 font-medium text-slate-800">
+                        {item.companyName ?? "Untitled Draft"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <StatusBadge status={item.status} />
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">{formatDateTime(item.submittedAt)}</td>
+                      <td className="px-4 py-3 text-slate-600">{formatDateTime(item.updatedAt)}</td>
+                      <td className="px-4 py-3">
+                        <Link className="font-semibold text-brand-blue" href={`/application/${item.id}`}>
+                          {item.status === "DRAFT" ? "Continue Draft" : "View"}
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         ) : (
           <div className="px-4 py-6 text-sm text-slate-600">No applications yet. Start a new one.</div>
         )}
