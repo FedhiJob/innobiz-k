@@ -192,7 +192,29 @@ export const AdminApplicationsPageClient = () => {
             </div>
           </>
         ) : (
-          <div className="px-4 py-5 text-sm text-slate-600">No matching applications.</div>
+          <div className="px-4 py-10">
+            <div className="mx-auto flex max-w-xl flex-col items-center gap-4 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-brand-blue/10">
+                <span className="text-3xl font-semibold text-brand-blue">i</span>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold text-brand-ink">No applications found</h4>
+                <p className="mt-1 text-sm text-slate-600">
+                  Try adjusting your filters or clear the search to see all submissions.
+                </p>
+              </div>
+              <button
+                className="btn-secondary w-full sm:w-auto"
+                onClick={() => {
+                  setInputSearch("");
+                  router.push("/admin/applications");
+                }}
+                type="button"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
         )}
       </div>
 

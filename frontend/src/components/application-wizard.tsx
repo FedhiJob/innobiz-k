@@ -8,10 +8,12 @@ import { StepIndicator } from "@/components/step-indicator";
 import { FilePicker } from "@/components/file-picker";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDateTime } from "@/lib/format";
+import { formatStatusLabel } from "@/lib/status";
 import { InkLoader } from "@/components/ink-loader";
 import type { Application, FounderInput } from "@/types/api";
 
 interface FounderDraft {
+  id: string;
   name: string;
   email: string;
   phone: string;
@@ -22,7 +24,15 @@ interface FounderDraft {
 const allowedDocumentExtensions = [".pdf", ".doc", ".docx", ".ppt", ".pptx"];
 const maxDocumentSize = 10 * 1024 * 1024;
 
+const createFounderId = () => {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `founder-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
+
 const createEmptyFounder = (isPrimary = false): FounderDraft => ({
+  id: createFounderId(),
   name: "",
   email: "",
   phone: "",
@@ -118,6 +128,7 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
     if (application.founders.length > 0) {
       setFounders(
         application.founders.map((founder) => ({
+          id: founder.id,
           name: founder.name,
           email: founder.email,
           phone: founder.phone ?? "",
@@ -316,7 +327,7 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
             <StatusBadge status={status} />
           ) : (
             <span className="inline-flex rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
-              NEW DRAFT
+              New Draft
             </span>
           )}
         </div>
@@ -408,7 +419,7 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
 
           <div className="space-y-4">
             {founders.map((founder, index) => (
-              <div className="rounded-xl border border-slate-200 p-4" key={`${index}-${founder.email}`}>
+              <div className="rounded-xl border border-slate-200 p-4" key={founder.id}>
                 <div className="mb-3 flex items-center justify-between">
                   <p className="text-sm font-semibold text-slate-700">Founder {index + 1}</p>
                   <button
@@ -745,7 +756,9 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
           <div className="mt-3 space-y-2">
             {statusHistory.map((entry) => (
               <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm" key={entry.id}>
-                <p className="font-medium text-slate-800">{entry.fromStatus ?? "NEW"} -> {entry.toStatus}</p>
+                <p className="font-medium text-slate-800">
+                  {formatStatusLabel(entry.fromStatus)} -> {formatStatusLabel(entry.toStatus)}
+                </p>
                 <p className="text-slate-600">{entry.note ?? "No note"}</p>
                 <p className="text-xs text-slate-500">{formatDateTime(entry.changedAt)}</p>
               </div>

@@ -87,7 +87,22 @@ export default function AdminDashboardPage() {
           <h3 className="text-lg font-semibold text-brand-ink">Recent Applications</h3>
         </div>
         {recent.length === 0 ? (
-          <div className="px-4 py-5 text-sm text-slate-600">No applications found.</div>
+          <div className="px-4 py-10">
+            <div className="mx-auto flex max-w-xl flex-col items-center gap-4 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-brand-blue/10">
+                <span className="text-3xl font-semibold text-brand-blue">i</span>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold text-brand-ink">No recent applications</h4>
+                <p className="mt-1 text-sm text-slate-600">
+                  New submissions will appear here as startups complete their applications.
+                </p>
+              </div>
+              <Link className="btn-secondary w-full sm:w-auto" href="/admin/applications?status=SUBMITTED">
+                View Review Queue
+              </Link>
+            </div>
+          </div>
         ) : (
           <>
             <div className="space-y-3 px-4 py-4 sm:hidden">

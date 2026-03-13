@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { adminApi, ApiHttpError } from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
 import { formatDateTime } from "@/lib/format";
+import { formatStatusLabel } from "@/lib/status";
 import { StatusBadge } from "@/components/status-badge";
 import { InkLoader } from "@/components/ink-loader";
 import type { AdminApplicationDetail } from "@/types/api";
@@ -190,7 +191,9 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
             <div className="mt-3 space-y-2">
               {application.statusHistory.map((entry) => (
                 <div className="rounded-lg border border-slate-200 bg-slate-50 p-3" key={entry.id}>
-                  <p className="text-sm font-medium text-slate-800">{entry.fromStatus ?? "NEW"} -> {entry.toStatus}</p>
+                  <p className="text-sm font-medium text-slate-800">
+                    {formatStatusLabel(entry.fromStatus)} -> {formatStatusLabel(entry.toStatus)}
+                  </p>
                   <p className="text-xs text-slate-600">{entry.note ?? "No note"}</p>
                   <p className="text-xs text-slate-500">{formatDateTime(entry.changedAt)}</p>
                 </div>

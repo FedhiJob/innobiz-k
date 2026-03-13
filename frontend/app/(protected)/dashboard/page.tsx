@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ApiHttpError, applicationApi } from "@/lib/api";
 import { useAuth } from "@/context/auth-context";
 import { StatusBadge } from "@/components/status-badge";
+import { formatStatusLabel } from "@/lib/status";
 import { formatDateTime } from "@/lib/format";
 import { InkLoader } from "@/components/ink-loader";
 import type { ApplicationStatus, PaginatedApplications } from "@/types/api";
@@ -68,7 +69,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statuses.map((status) => (
           <div className="panel p-4" key={status}>
-            <p className="text-sm text-slate-500">{status}</p>
+            <p className="text-sm text-slate-500">{formatStatusLabel(status)}</p>
             <p className="mt-1 text-3xl font-extrabold text-brand-slate">{statusCounts[status]}</p>
           </div>
         ))}
@@ -142,7 +143,22 @@ export default function DashboardPage() {
             </div>
           </>
         ) : (
-          <div className="px-4 py-6 text-sm text-slate-600">No applications yet. Start a new one.</div>
+          <div className="px-4 py-10">
+            <div className="mx-auto flex max-w-xl flex-col items-center gap-4 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-brand-green/10">
+                <span className="text-3xl font-semibold text-brand-green">i</span>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold text-brand-slate">No applications yet</h4>
+                <p className="mt-1 text-sm text-slate-600">
+                  Start your first incubation application and save progress anytime.
+                </p>
+              </div>
+              <Link className="btn-primary w-full sm:w-auto" href="/application/new">
+                Start Application
+              </Link>
+            </div>
+          </div>
         )}
       </div>
     </div>
