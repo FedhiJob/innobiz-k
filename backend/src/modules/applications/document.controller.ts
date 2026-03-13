@@ -33,6 +33,19 @@ const resolveFilePath = (fileUrl: string) => {
   return resolved;
 };
 
+const safeUnlink = async (filePath?: string) => {
+  if (!filePath) {
+    return;
+  }
+  try {
+    await fs.unlink(filePath);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+      throw error;
+    }
+  }
+};
+
 const getDocumentWithAccess = async (
   applicationId: string,
   documentId: string,
@@ -97,7 +110,14 @@ export const uploadDocument = async (req: Request, res: Response) => {
     throw new ApiError(400, "Only one pitch deck document is allowed. Delete the existing document to upload another.");
   }
 
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  if (!documentUploadConfig.allowedExtensions.has(ext) || !documentUploadConfig.allowedMimeTypes.has(req.file.mimetype)) {
+    await safeUnlink(req.file.path);
+    throw new ApiError(400, "Invalid file type. Allowed: PDF, DOC, DOCX, PPT, PPTX.");
+  }
+
   if (req.file.size > documentUploadConfig.maxFileSize) {
+    await safeUnlink(req.file.path);
     throw new ApiError(400, "File too large. Max size is 10MB.");
   }
 

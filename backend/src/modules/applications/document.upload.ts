@@ -31,20 +31,12 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
-  const ext = path.extname(file.originalname).toLowerCase();
-
-  if (!allowedExtensions.has(ext) || !allowedMimeTypes.has(file.mimetype)) {
-    return cb(new ApiError(400, "Invalid file type. Allowed: PDF, DOC, DOCX, PPT, PPTX."));
-  }
-
-  return cb(null, true);
-};
+const fileFilter: multer.Options["fileFilter"] = (_req, _file, cb) => cb(null, true);
 
 export const upload = multer({
   storage,
   limits: {
-    fileSize: maxFileSize,
+    fileSize: maxFileSize + 1024 * 1024,
   },
   fileFilter,
 });
