@@ -146,7 +146,7 @@ export default function DashboardPage() {
           <div className="px-4 py-10">
             <div className="mx-auto flex max-w-xl flex-col items-center gap-4 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-brand-green/10">
-                <span className="text-3xl font-semibold text-brand-green">i</span>
+                <img alt="InnoBiz-K Ethiopia" className="h-10 w-auto" src="/ink-logo.png" />
               </div>
               <div>
                 <h4 className="text-lg font-semibold text-brand-slate">No applications yet</h4>
