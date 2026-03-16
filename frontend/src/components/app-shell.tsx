@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 const isActive = (pathname: string, href: string) => {
   if (href === "/dashboard") {
@@ -20,7 +21,14 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <div className="shrink-0">
-                <img alt="InnoBiz-K Ethiopia" className="h-10 w-auto" src="/ink-logo.png" />
+                <Image
+                  alt="InnoBiz-K Ethiopia"
+                  className="h-10 w-auto"
+                  src="/ink-logo.png"
+                  width={120}
+                  height={40}
+                  priority
+                />
               </div>
               <div>
                 <h1 className="text-lg font-extrabold tracking-tight text-brand-ink">InnoBiz-K Ethiopia</h1>
