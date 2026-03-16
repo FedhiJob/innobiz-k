@@ -757,7 +757,7 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
             {statusHistory.map((entry) => (
               <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm" key={entry.id}>
                 <p className="font-medium text-slate-800">
-                  {formatStatusLabel(entry.fromStatus)} -> {formatStatusLabel(entry.toStatus)}
+                  {formatStatusLabel(entry.fromStatus)} {"->"} {formatStatusLabel(entry.toStatus)}
                 </p>
                 <p className="text-slate-600">{entry.note ?? "No note"}</p>
                 <p className="text-xs text-slate-500">{formatDateTime(entry.changedAt)}</p>
