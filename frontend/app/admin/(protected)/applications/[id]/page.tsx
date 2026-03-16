@@ -192,7 +192,7 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
               {application.statusHistory.map((entry) => (
                 <div className="rounded-lg border border-slate-200 bg-slate-50 p-3" key={entry.id}>
                   <p className="text-sm font-medium text-slate-800">
-                    {formatStatusLabel(entry.fromStatus)} -> {formatStatusLabel(entry.toStatus)}
+                    {formatStatusLabel(entry.fromStatus)} {"->"} {formatStatusLabel(entry.toStatus)}
                   </p>
                   <p className="text-xs text-slate-600">{entry.note ?? "No note"}</p>
                   <p className="text-xs text-slate-500">{formatDateTime(entry.changedAt)}</p>
