@@ -7,6 +7,7 @@ import { useAuth } from "@/context/auth-context";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDateTime } from "@/lib/format";
 import { InkLoader } from "@/components/ink-loader";
+import { ReportShareModal } from "@/components/report-share-modal";
 import type { AdminStats, PaginatedAdminApplications } from "@/types/api";
 
 export default function AdminDashboardPage() {
@@ -15,6 +16,13 @@ export default function AdminDashboardPage() {
   const [recent, setRecent] = useState<PaginatedAdminApplications["items"]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [shareExpiresAt, setShareExpiresAt] = useState<string | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) {
@@ -45,6 +53,63 @@ export default function AdminDashboardPage() {
     void run();
   }, [token]);
 
+  const generateShareLink = async () => {
+    if (!token) {
+      return;
+    }
+
+    setShareLoading(true);
+    setEmailError(null);
+    setEmailSuccess(null);
+    try {
+      const response = await adminApi.createMonthlyReportShare(token);
+      setShareUrl(response.shareUrl);
+      setShareExpiresAt(response.expiresAt);
+    } catch (err) {
+      if (err instanceof ApiHttpError) {
+        setEmailError(err.message);
+      } else {
+        setEmailError("Unable to generate report link.");
+      }
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleOpenShare = () => {
+    setShareOpen(true);
+    if (!shareUrl && !shareLoading) {
+      void generateShareLink();
+    }
+  };
+
+  const handleSendEmail = async (recipients: string[]) => {
+    if (!token) {
+      return;
+    }
+
+    setEmailSending(true);
+    setEmailError(null);
+    setEmailSuccess(null);
+    try {
+      const response = await adminApi.emailMonthlyReport(token, {
+        recipients,
+        format: "pdf",
+      });
+      setShareUrl(response.shareUrl);
+      setShareExpiresAt(response.expiresAt);
+      setEmailSuccess("Report sent successfully.");
+    } catch (err) {
+      if (err instanceof ApiHttpError) {
+        setEmailError(err.message);
+      } else {
+        setEmailError("Unable to send report email.");
+      }
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -52,9 +117,14 @@ export default function AdminDashboardPage() {
           <h2 className="text-2xl font-bold text-brand-ink">Admin Dashboard</h2>
           <p className="text-sm text-slate-600">Review queue and decision metrics.</p>
         </div>
-        <Link className="btn-primary w-full sm:w-auto" href="/admin/applications?status=SUBMITTED">
-          Open Review Queue
-        </Link>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <button className="btn-secondary w-full sm:w-auto" onClick={handleOpenShare} type="button">
+            Share Monthly Report
+          </button>
+          <Link className="btn-primary w-full sm:w-auto" href="/admin/applications?status=SUBMITTED">
+            Open Review Queue
+          </Link>
+        </div>
       </div>
 
       {loading ? (
@@ -157,6 +227,19 @@ export default function AdminDashboardPage() {
           </>
         )}
       </div>
+
+      <ReportShareModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        shareUrl={shareUrl}
+        expiresAt={shareExpiresAt}
+        loading={shareLoading}
+        onRefresh={generateShareLink}
+        onSendEmail={handleSendEmail}
+        emailSending={emailSending}
+        emailError={emailError}
+        emailSuccess={emailSuccess}
+      />
     </div>
   );
 }
