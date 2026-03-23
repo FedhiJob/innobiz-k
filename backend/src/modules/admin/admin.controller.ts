@@ -1,10 +1,11 @@
 import type { Request, Response } from "express";
-import { ApplicationStatus, EmailTemplateType, Prisma } from "@prisma/client";
+import { ApplicationStatus, EmailTemplateType, NotificationType, Prisma } from "@prisma/client";
 import { prisma } from "../../config/prisma";
 import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
 import { parsePagination } from "../../utils/pagination";
 import { sendAndLogEmail } from "../../services/email.service";
+import { createNotification } from "../../services/notification.service";
 import { assertStatusTransition } from "../../utils/status-transition";
 import { adminListQuerySchema, approveSchema, rejectSchema } from "./admin.schemas";
 
@@ -129,6 +130,11 @@ export const getApplicationAdmin = async (req: Request, res: Response) => {
       founders: true,
       documents: true,
       emailLogs: true,
+      monthlyReports: {
+        orderBy: {
+          reportMonth: "desc",
+        },
+      },
       statusHistory: {
         orderBy: {
           changedAt: "asc",
@@ -216,6 +222,14 @@ export const approveApplication = async (req: Request, res: Response) => {
     templateType: EmailTemplateType.APPLICATION_APPROVED,
   });
 
+  await createNotification({
+    userId: updated.startup.id,
+    type: NotificationType.APPLICATION_APPROVED,
+    title: "Application approved",
+    message: "Congratulations! Your application has been approved by the admin team.",
+    link: `/application/${updated.id}`,
+  });
+
   return sendSuccess(res, updated, "Application approved");
 };
 
@@ -290,6 +304,14 @@ export const rejectApplication = async (req: Request, res: Response) => {
     decisionDate: updated.reviewedAt,
     recipient: updated.startup.email,
     templateType: EmailTemplateType.APPLICATION_REJECTED,
+  });
+
+  await createNotification({
+    userId: updated.startup.id,
+    type: NotificationType.APPLICATION_REJECTED,
+    title: "Application rejected",
+    message: "Your application was not approved. Check the admin notes for more details.",
+    link: `/application/${updated.id}`,
   });
 
   return sendSuccess(res, updated, "Application rejected");
