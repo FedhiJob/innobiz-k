@@ -12,6 +12,8 @@ import {
 } from "./application.controller";
 import { deleteDocument, downloadDocument, uploadDocument } from "./document.controller";
 import { upload } from "./document.upload";
+import { downloadMonthlyReport, uploadMonthlyReport } from "./monthly-report.controller";
+import { monthlyReportUpload } from "./monthly-report.upload";
 
 export const applicationRouter = Router();
 
@@ -39,4 +41,16 @@ applicationRouter.delete(
   "/:id/documents/:docId",
   requireRole(Role.STARTUP, Role.ADMIN),
   asyncHandler(deleteDocument),
+);
+
+applicationRouter.post(
+  "/:id/monthly-reports",
+  requireRole(Role.STARTUP),
+  monthlyReportUpload.single("file"),
+  asyncHandler(uploadMonthlyReport),
+);
+applicationRouter.get(
+  "/:id/monthly-reports/:reportId",
+  requireRole(Role.STARTUP, Role.ADMIN),
+  asyncHandler(downloadMonthlyReport),
 );
