@@ -10,7 +10,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { formatDateTime } from "@/lib/format";
 import { formatStatusLabel } from "@/lib/status";
 import { InkLoader } from "@/components/ink-loader";
-import type { Application, FounderInput } from "@/types/api";
+import type { Application, FounderInput, SupportInterest } from "@/types/api";
 
 interface FounderDraft {
   id: string;
@@ -23,6 +23,19 @@ interface FounderDraft {
 
 const allowedDocumentExtensions = [".pdf", ".doc", ".docx", ".ppt", ".pptx"];
 const maxDocumentSize = 10 * 1024 * 1024;
+
+const supportInterestOptions: Array<{ value: SupportInterest; label: string }> = [
+  { value: "OFFICE_SPACE", label: "Office Space" },
+  { value: "TRAINING", label: "Training" },
+  { value: "FUNDING", label: "Funding" },
+  { value: "MENTORSHIP", label: "Mentorship" },
+  { value: "NETWORKING", label: "Networking" },
+  { value: "MARKET_ACCESS", label: "Market Access" },
+  { value: "LEGAL_SUPPORT", label: "Legal Support" },
+  { value: "PRODUCT_DEVELOPMENT", label: "Product Development" },
+  { value: "INVESTMENT_READINESS", label: "Investment Readiness" },
+  { value: "OTHER", label: "Other" },
+];
 
 const createFounderId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -61,9 +74,14 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
   const [description, setDescription] = useState("");
   const [founders, setFounders] = useState<FounderDraft[]>([createEmptyFounder(true)]);
   const [teamSize, setTeamSize] = useState("");
-  const [fundingNeeded, setFundingNeeded] = useState("");
+  const [supportInterests, setSupportInterests] = useState<SupportInterest[]>([]);
   const [documents, setDocuments] = useState<Application["documents"]>([]);
+  const [monthlyReports, setMonthlyReports] = useState<Application["monthlyReports"]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [reportFile, setReportFile] = useState<File | null>(null);
+  const [reportHeadline, setReportHeadline] = useState("");
+  const [reportDescription, setReportDescription] = useState("");
+  const [reportUploading, setReportUploading] = useState(false);
   const [statusHistory, setStatusHistory] = useState<Application["statusHistory"]>([]);
   const [reviewNotes, setReviewNotes] = useState<{ adminNotes: string | null; rejectionReason: string | null }>({
     adminNotes: null,
@@ -72,6 +90,15 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
 
   const isReadOnly = status !== null && status !== "DRAFT";
   const hasDocument = documents.length >= 1;
+  const canSubmitMonthlyReport = status === "SUBMITTED" || status === "APPROVED";
+
+  const formatReportMonth = (value: string) => {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return value;
+    }
+    return parsed.toLocaleString("en-US", { month: "long", year: "numeric" });
+  };
 
   const validateDocument = (file: File) => {
     const extension = `.${file.name.split(".").pop()?.toLowerCase() ?? ""}`;
@@ -82,6 +109,12 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
       return "File too large. Max size is 10MB.";
     }
     return null;
+  };
+
+  const toggleSupportInterest = (value: SupportInterest) => {
+    setSupportInterests((current) =>
+      current.includes(value) ? current.filter((item) => item !== value) : [...current, value],
+    );
   };
 
   useEffect(() => {
@@ -117,8 +150,9 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
     setStage(application.stage ?? "");
     setDescription(application.description ?? "");
     setTeamSize(application.teamSize ? String(application.teamSize) : "");
-    setFundingNeeded(application.fundingNeeded ?? "");
+    setSupportInterests(application.supportInterests ?? []);
     setDocuments(application.documents);
+    setMonthlyReports(application.monthlyReports ?? []);
     setStatusHistory(application.statusHistory);
     setReviewNotes({
       adminNotes: application.adminNotes,
@@ -189,7 +223,6 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
 
   const buildPayload = (strictFounders: boolean) => {
     const parsedTeamSize = Number(teamSize);
-    const parsedFunding = Number(fundingNeeded);
 
     return {
       companyName: companyName.trim() || undefined,
@@ -197,7 +230,7 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
       stage: stage.trim() || undefined,
       description: description.trim() || undefined,
       teamSize: Number.isFinite(parsedTeamSize) && parsedTeamSize > 0 ? parsedTeamSize : undefined,
-      fundingNeeded: Number.isFinite(parsedFunding) && parsedFunding > 0 ? parsedFunding : undefined,
+      supportInterests,
       founders: buildFoundersForApi(strictFounders),
     };
   };
@@ -269,6 +302,81 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
     }
   };
 
+  const uploadMonthlyReport = async () => {
+    if (!token) {
+      throw new Error("Not authenticated");
+    }
+    if (!applicationId) {
+      throw new Error("Create an application before submitting monthly reports.");
+    }
+    if (!canSubmitMonthlyReport) {
+      throw new Error("Monthly reports can only be submitted after the application is submitted or approved.");
+    }
+    if (!reportHeadline.trim()) {
+      throw new Error("Monthly report headline is required.");
+    }
+    if (reportDescription.trim().length < 20) {
+      throw new Error("Monthly report description must be at least 20 characters.");
+    }
+    if (!reportFile) {
+      throw new Error("Attach your monthly report document.");
+    }
+
+    const validationError = validateDocument(reportFile);
+    if (validationError) {
+      throw new Error(validationError);
+    }
+
+    setReportUploading(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const uploaded = await applicationApi.uploadMonthlyReport(token, applicationId, {
+        headline: reportHeadline.trim(),
+        description: reportDescription.trim(),
+        file: reportFile,
+      });
+      setMonthlyReports((current) => [uploaded, ...current]);
+      setReportHeadline("");
+      setReportDescription("");
+      setReportFile(null);
+      setMessage("Monthly report uploaded.");
+    } finally {
+      setReportUploading(false);
+    }
+  };
+
+  const downloadMonthlyReport = async (reportId: string, fileName: string) => {
+    if (!token) {
+      return;
+    }
+    if (!applicationId) {
+      return;
+    }
+    try {
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000/api";
+      const response = await fetch(`${base}/applications/${applicationId}/monthly-reports/${reportId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Download failed");
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      setError("Unable to download monthly report.");
+    }
+  };
+
   const submitApplication = async () => {
     if (!token) {
       throw new Error("Not authenticated");
@@ -284,8 +392,8 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
       if (!teamSize || Number(teamSize) <= 0) {
         throw new Error("Team size is required before submission.");
       }
-      if (!fundingNeeded || Number(fundingNeeded) <= 0) {
-        throw new Error("Funding needed is required before submission.");
+      if (supportInterests.length === 0) {
+        throw new Error("Select at least one support interest before submission.");
       }
 
       await saveDraft(true);
@@ -371,23 +479,46 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700">Sector</label>
-              <input
+              <select
                 className="input"
                 disabled={isReadOnly}
                 onChange={(event) => setSector(event.target.value)}
-                placeholder="FinTech, AgriTech, HealthTech..."
                 value={sector}
-              />
+              >
+                <option value="">Select a sector</option>
+                <option value="FinTech">FinTech</option>
+                <option value="AgriTech">AgriTech</option>
+                <option value="HealthTech">HealthTech</option>
+                <option value="EdTech">EdTech</option>
+                <option value="E-commerce">E-commerce</option>
+                <option value="Logistics">Logistics</option>
+                <option value="Energy">Energy</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="AI/ML">AI / ML</option>
+                <option value="SaaS">SaaS</option>
+                <option value="MedTech">MedTech</option>
+                <option value="ClimateTech">ClimateTech</option>
+                <option value="GovTech">GovTech</option>
+                <option value="Mobility">Mobility</option>
+                <option value="Tourism">Tourism</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700">Stage</label>
-              <input
+              <select
                 className="input"
                 disabled={isReadOnly}
                 onChange={(event) => setStage(event.target.value)}
-                placeholder="Idea, MVP, Growth..."
                 value={stage}
-              />
+              >
+                <option value="">Select a stage</option>
+                <option value="Ideation / Pre-Seed">Ideation / Pre-Seed</option>
+                <option value="Seed">Seed</option>
+                <option value="Growth">Growth</option>
+                <option value="Scale Up">Scale Up</option>
+                <option value="Exit">Exit</option>
+              </select>
             </div>
             <div className="sm:col-span-2">
               <label className="mb-1 block text-sm font-medium text-slate-700">Description</label>
@@ -524,17 +655,30 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
                 value={teamSize}
               />
             </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Funding Needed (USD)</label>
-              <input
-                className="input"
-                disabled={isReadOnly}
-                min={1}
-                onChange={(event) => setFundingNeeded(event.target.value)}
-                placeholder="e.g. 25000"
-                type="number"
-                value={fundingNeeded}
-              />
+            <div className="sm:col-span-2">
+              <label className="mb-2 block text-sm font-medium text-slate-700">Support Interests</label>
+              <div className="flex flex-wrap gap-2">
+                {supportInterestOptions.map((option) => {
+                  const selected = supportInterests.includes(option.value);
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      disabled={isReadOnly}
+                      aria-pressed={selected}
+                      onClick={() => toggleSupportInterest(option.value)}
+                      className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                        selected
+                          ? "border-brand-blue bg-brand-blue/10 text-brand-blue"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
+                      } ${isReadOnly ? "opacity-60" : ""}`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-xs text-slate-500">Select all support areas that apply.</p>
             </div>
           </div>
 
@@ -553,6 +697,8 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
                   setError(null);
                   setSelectedFile(file);
                 }}
+                title="Pitch Deck Upload"
+                subtitle="PDF / DOC / DOCX / PPT / PPTX, max 10MB"
               />
 
               {hasDocument ? (
@@ -746,6 +892,120 @@ export const ApplicationWizard = ({ initialApplicationId }: { initialApplication
             <button className="btn-secondary w-full sm:w-auto" onClick={() => router.push("/dashboard")} type="button">
               Back to Dashboard
             </button>
+          )}
+        </div>
+      </div>
+
+      <div className="panel space-y-4 p-6">
+        <div>
+          <h3 className="text-lg font-semibold text-brand-slate">Monthly Progress Reports</h3>
+          <p className="text-sm text-slate-600">
+            Submit a monthly report document with a headline and short progress summary for the admin team.
+          </p>
+        </div>
+
+        {canSubmitMonthlyReport ? (
+          <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">Startup Headline</label>
+                <input
+                  className="input"
+                  placeholder="Short headline about this month's progress"
+                  value={reportHeadline}
+                  onChange={(event) => setReportHeadline(event.target.value)}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">Progress Description</label>
+                <textarea
+                  className="input min-h-28"
+                  placeholder="Summarize achievements, milestones, and challenges (min 20 chars)."
+                  value={reportDescription}
+                  onChange={(event) => setReportDescription(event.target.value)}
+                />
+              </div>
+              <FilePicker
+                disabled={!canSubmitMonthlyReport}
+                file={reportFile}
+                onClear={() => setReportFile(null)}
+                onPick={(file) => {
+                  const validationError = validateDocument(file);
+                  if (validationError) {
+                    setError(validationError);
+                    return;
+                  }
+                  setError(null);
+                  setReportFile(file);
+                }}
+                title="Monthly Report Upload"
+                subtitle="PDF / DOC / DOCX / PPT / PPTX, max 10MB"
+              />
+              <button
+                className="btn-primary w-full sm:w-auto"
+                disabled={reportUploading}
+                onClick={async () => {
+                  setError(null);
+                  setMessage(null);
+                  try {
+                    await uploadMonthlyReport();
+                  } catch (err) {
+                    if (err instanceof ApiHttpError || err instanceof Error) {
+                      setError(err.message);
+                    } else {
+                      setError("Unable to upload monthly report.");
+                    }
+                  }
+                }}
+                type="button"
+              >
+                {reportUploading ? "Uploading..." : "Submit Monthly Report"}
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+              <p className="font-semibold text-slate-700">Required every month</p>
+              <p className="mt-1">
+                Upload a report document and provide a headline + description. These details are shown to the admin team.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-brand-blue/20 bg-brand-blue/10 px-4 py-3 text-sm text-brand-blue">
+            Monthly reports can be submitted once your application is submitted or approved.
+          </div>
+        )}
+
+        <div className="space-y-3">
+          <h4 className="text-sm font-semibold text-slate-700">Submitted Reports</h4>
+          {monthlyReports.length === 0 ? (
+            <p className="text-sm text-slate-500">No monthly reports submitted yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {monthlyReports.map((report) => (
+                <div
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                  key={report.id}
+                >
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{report.headline}</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {formatReportMonth(report.reportMonth)} • {report.fileName}
+                      </p>
+                      <p className="mt-2 text-sm text-slate-600">{report.description}</p>
+                    </div>
+                    <button
+                      className="btn-secondary w-full sm:w-auto"
+                      onClick={() => void downloadMonthlyReport(report.id, report.fileName)}
+                      type="button"
+                    >
+                      Download
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
