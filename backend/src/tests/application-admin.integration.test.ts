@@ -16,7 +16,7 @@ const createDraftPayload = (email: string) => ({
   stage: "MVP",
   description: "This is an integration test application description.",
   teamSize: 6,
-  fundingNeeded: 25000,
+  supportInterests: ["FUNDING", "TRAINING"],
   founders: [
     {
       name: "Primary Founder",
