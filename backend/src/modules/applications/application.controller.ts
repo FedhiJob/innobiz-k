@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { ApplicationStatus, EmailTemplateType, Prisma } from "@prisma/client";
+import { ApplicationStatus, EmailTemplateType, NotificationType, Prisma } from "@prisma/client";
 import fs from "fs/promises";
 import path from "path";
 import { prisma } from "../../config/prisma";
@@ -7,6 +7,7 @@ import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
 import { parsePagination } from "../../utils/pagination";
 import { sendAndLogEmail } from "../../services/email.service";
+import { createNotification, notifyAdmins } from "../../services/notification.service";
 import { assertStatusTransition } from "../../utils/status-transition";
 import {
   createApplicationSchema,
@@ -15,14 +16,6 @@ import {
 } from "./application.schemas";
 
 const uploadsDir = path.resolve(process.cwd(), "uploads");
-
-const toDecimalOrUndefined = (value?: number) => {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  return new Prisma.Decimal(value);
-};
 
 const resolveUploadPath = (fileUrl: string) => {
   const normalized = fileUrl.replace(/\//g, path.sep);
@@ -63,7 +56,7 @@ const ensureDraftSubmittable = (application: {
   stage: string | null;
   description: string | null;
   teamSize: number | null;
-  fundingNeeded: Prisma.Decimal | null;
+  supportInterests: Array<string>;
   founders: Array<{ isPrimary: boolean }>;
   documents?: Array<unknown>;
 }) => {
@@ -76,8 +69,7 @@ const ensureDraftSubmittable = (application: {
     !application.sector ||
     !application.stage ||
     !application.description ||
-    !application.teamSize ||
-    !application.fundingNeeded
+    !application.teamSize
   ) {
     throw new ApiError(400, "Application is incomplete. Fill all required fields before submitting.");
   }
@@ -86,8 +78,8 @@ const ensureDraftSubmittable = (application: {
     throw new ApiError(400, "Team size must be greater than 0.");
   }
 
-  if (application.fundingNeeded.lte(0)) {
-    throw new ApiError(400, "Funding needed must be greater than 0.");
+  if (!application.supportInterests || application.supportInterests.length === 0) {
+    throw new ApiError(400, "Select at least one support interest before submitting.");
   }
 
   if (application.founders.length < 1 || application.founders.length > 3) {
@@ -124,7 +116,7 @@ export const createApplication = async (req: Request, res: Response) => {
       stage: payload.stage ?? null,
       description: payload.description ?? null,
       teamSize: payload.teamSize ?? null,
-      fundingNeeded: toDecimalOrUndefined(payload.fundingNeeded),
+      supportInterests: payload.supportInterests ?? [],
       status,
       submittedAt: null,
       founders: founders ? { create: founders } : undefined,
@@ -140,6 +132,11 @@ export const createApplication = async (req: Request, res: Response) => {
     include: {
       founders: true,
       documents: true,
+      monthlyReports: {
+        orderBy: {
+          reportMonth: "desc",
+        },
+      },
       startup: {
         select: {
           email: true,
@@ -181,8 +178,8 @@ export const updateApplication = async (req: Request, res: Response) => {
   if (payload.teamSize !== undefined) {
     updateData.teamSize = payload.teamSize;
   }
-  if (payload.fundingNeeded !== undefined) {
-    updateData.fundingNeeded = toDecimalOrUndefined(payload.fundingNeeded);
+  if (payload.supportInterests !== undefined) {
+    updateData.supportInterests = payload.supportInterests;
   }
 
   const existing = await prisma.application.findFirst({
@@ -236,6 +233,11 @@ export const updateApplication = async (req: Request, res: Response) => {
       include: {
         founders: true,
         documents: true,
+        monthlyReports: {
+          orderBy: {
+            reportMonth: "desc",
+          },
+        },
         statusHistory: {
           orderBy: {
             changedAt: "asc",
@@ -365,6 +367,11 @@ export const getApplicationById = async (req: Request, res: Response) => {
     include: {
       founders: true,
       documents: true,
+      monthlyReports: {
+        orderBy: {
+          reportMonth: "desc",
+        },
+      },
       statusHistory: {
         orderBy: {
           changedAt: "asc",
@@ -400,7 +407,7 @@ export const submitApplication = async (req: Request, res: Response) => {
       stage: true,
       description: true,
       teamSize: true,
-      fundingNeeded: true,
+      supportInterests: true,
       founders: {
         select: {
           isPrimary: true,
@@ -445,6 +452,11 @@ export const submitApplication = async (req: Request, res: Response) => {
     include: {
       founders: true,
       documents: true,
+      monthlyReports: {
+        orderBy: {
+          reportMonth: "desc",
+        },
+      },
       startup: {
         select: {
           email: true,
@@ -466,6 +478,22 @@ export const submitApplication = async (req: Request, res: Response) => {
     recipient: submitted.startup.email,
     templateType: EmailTemplateType.APPLICATION_RECEIVED,
   });
+
+  await Promise.all([
+    createNotification({
+      userId: req.user.id,
+      type: NotificationType.APPLICATION_SUBMITTED,
+      title: "Application submitted",
+      message: "Your application has been submitted successfully.",
+      link: `/application/${submitted.id}`,
+    }),
+    notifyAdmins({
+      type: NotificationType.APPLICATION_SUBMITTED,
+      title: "New application submitted",
+      message: `${submitted.companyName ?? "A startup"} submitted an application for review.`,
+      link: `/admin/applications/${submitted.id}`,
+    }),
+  ]);
 
   return sendSuccess(res, submitted, "Application submitted");
 };
