@@ -5,12 +5,19 @@ import { prisma } from "../config/prisma";
 import { buildEmailTemplate } from "./email.templates";
 
 type EmailContext = {
-  applicationId: string;
+  applicationId?: string;
   companyName?: string | null;
   submittedDate?: Date | null;
   decisionDate?: Date | null;
+  reportPeriod?: string;
+  downloadUrl?: string;
   recipient: string;
   templateType: EmailTemplateType;
+  attachments?: Array<{
+    filename: string;
+    path: string;
+    contentType?: string;
+  }>;
 };
 
 const isSmtpConfigured = () => {
@@ -37,6 +44,8 @@ export const sendAndLogEmail = async (context: EmailContext) => {
     applicationId: context.applicationId,
     submittedDate: context.submittedDate,
     decisionDate: context.decisionDate,
+    reportPeriod: context.reportPeriod,
+    downloadUrl: context.downloadUrl,
   });
 
   if (!isSmtpConfigured()) {
@@ -61,6 +70,7 @@ export const sendAndLogEmail = async (context: EmailContext) => {
       subject,
       text,
       html,
+      attachments: context.attachments,
     });
 
     await prisma.emailLog.create({
