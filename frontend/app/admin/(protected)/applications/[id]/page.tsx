@@ -51,6 +51,19 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
   }, [token, params.id]);
 
   const canReview = application?.status === "SUBMITTED";
+  const formatReportMonth = (value: string) => {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return value;
+    }
+    return parsed.toLocaleString("en-US", { month: "long", year: "numeric" });
+  };
+  const formatSupportInterest = (value: string) =>
+    value
+      .toLowerCase()
+      .split("_")
+      .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+      .join(" ");
 
   const downloadDocument = async (docId: string, fileName: string) => {
     if (!token) {
@@ -77,6 +90,34 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
       window.URL.revokeObjectURL(url);
     } catch {
       setError("Unable to download file.");
+    }
+  };
+
+  const downloadMonthlyReport = async (reportId: string, fileName: string) => {
+    if (!token) {
+      return;
+    }
+    try {
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000/api";
+      const response = await fetch(`${base}/applications/${params.id}/monthly-reports/${reportId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Download failed");
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      setError("Unable to download monthly report.");
     }
   };
 
@@ -130,9 +171,22 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
                 <p className="text-xs font-semibold uppercase text-slate-500">Team Size</p>
                 <p className="text-sm text-slate-800">{application.teamSize ?? "-"}</p>
               </div>
-              <div className="rounded-lg bg-slate-50 p-3">
-                <p className="text-xs font-semibold uppercase text-slate-500">Funding Needed</p>
-                <p className="text-sm text-slate-800">{application.fundingNeeded ?? "-"}</p>
+              <div className="rounded-lg bg-slate-50 p-3 sm:col-span-2">
+                <p className="text-xs font-semibold uppercase text-slate-500">Support Interests</p>
+                {application.supportInterests.length === 0 ? (
+                  <p className="text-sm text-slate-800">-</p>
+                ) : (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {application.supportInterests.map((interest) => (
+                      <span
+                        className="rounded-full border border-brand-blue/20 bg-brand-blue/10 px-2.5 py-1 text-xs font-semibold text-brand-blue"
+                        key={interest}
+                      >
+                        {formatSupportInterest(interest)}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -180,6 +234,42 @@ export default function AdminApplicationDetailPage({ params }: { params: { id: s
                     >
                       Download
                     </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="panel p-5">
+            <h3 className="text-lg font-semibold text-brand-ink">Monthly Reports</h3>
+            <p className="mt-1 text-sm text-slate-600">
+              Startup headline and progress summaries appear here for monthly review.
+            </p>
+            <div className="mt-3 space-y-3">
+              {application.monthlyReports.length === 0 ? (
+                <p className="text-sm text-slate-600">No monthly reports submitted yet.</p>
+              ) : (
+                application.monthlyReports.map((report) => (
+                  <div
+                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                    key={report.id}
+                  >
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-800">{report.headline}</p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {formatReportMonth(report.reportMonth)} • {report.fileName}
+                        </p>
+                        <p className="mt-2 text-sm text-slate-600">{report.description}</p>
+                      </div>
+                      <button
+                        className="btn-secondary w-full sm:w-auto"
+                        onClick={() => void downloadMonthlyReport(report.id, report.fileName)}
+                        type="button"
+                      >
+                        Download
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
