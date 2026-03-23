@@ -9,11 +9,15 @@ export const FilePicker = ({
   onPick,
   onClear,
   disabled,
+  title = "Pitch Deck Upload",
+  subtitle = "PDF / DOC / DOCX / PPT / PPTX, max 10MB",
 }: {
   file: File | null;
   onPick: (file: File) => void;
   onClear: () => void;
   disabled?: boolean;
+  title?: string;
+  subtitle?: string;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -34,8 +38,8 @@ export const FilePicker = ({
       />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-slate-800">Pitch Deck Upload</p>
-          <p className="text-xs text-slate-500">PDF / DOC / DOCX / PPT / PPTX, max 10MB</p>
+          <p className="text-sm font-semibold text-slate-800">{title}</p>
+          <p className="text-xs text-slate-500">{subtitle}</p>
         </div>
         <button
           className="btn-secondary w-full sm:w-auto"
