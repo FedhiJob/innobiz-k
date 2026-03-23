@@ -9,13 +9,26 @@ const founderSchema = z.object({
   isPrimary: z.boolean().optional(),
 });
 
+const supportInterestSchema = z.enum([
+  "OFFICE_SPACE",
+  "TRAINING",
+  "FUNDING",
+  "MENTORSHIP",
+  "NETWORKING",
+  "MARKET_ACCESS",
+  "LEGAL_SUPPORT",
+  "PRODUCT_DEVELOPMENT",
+  "INVESTMENT_READINESS",
+  "OTHER",
+]);
+
 const baseApplicationSchema = z.object({
   companyName: z.string().trim().min(2).max(200).optional(),
   sector: z.string().trim().min(2).max(100).optional(),
   stage: z.string().trim().min(2).max(100).optional(),
   description: z.string().trim().min(20).max(5000).optional(),
   teamSize: z.coerce.number().int().positive().max(100000).optional(),
-  fundingNeeded: z.coerce.number().positive().max(1000000000).optional(),
+  supportInterests: z.array(supportInterestSchema).max(10).optional(),
   founders: z.array(founderSchema).max(3).optional(),
 });
 
