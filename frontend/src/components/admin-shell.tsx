@@ -19,7 +19,7 @@ export const AdminShell = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-black/10 bg-brand-ink text-white">
+      <header className="relative z-[100] border-b border-black/10 bg-brand-ink text-white">
         <div className="mx-auto max-w-7xl px-4 py-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Link className="flex items-center gap-3" href="/">
@@ -63,6 +63,16 @@ export const AdminShell = ({ children }: { children: React.ReactNode }) => {
                 </Link>
                 <Link
                   className={`whitespace-nowrap rounded-xl px-3 py-2 font-semibold ${
+                    isActive(pathname, "/admin/space-requests")
+                      ? "bg-brand-blue text-white shadow-sm"
+                      : "text-white/85 hover:bg-white/10"
+                  }`}
+                  href="/admin/space-requests"
+                >
+                  Space Requests
+                </Link>
+                <Link
+                  className={`whitespace-nowrap rounded-xl px-3 py-2 font-semibold ${
                     isActive(pathname, "/admin/profile")
                       ? "bg-brand-blue text-white shadow-sm"
                       : "text-white/85 hover:bg-white/10"
@@ -78,7 +88,7 @@ export const AdminShell = ({ children }: { children: React.ReactNode }) => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>
+      <main className="relative z-0 mx-auto max-w-7xl px-4 py-8">{children}</main>
     </div>
   );
 };
