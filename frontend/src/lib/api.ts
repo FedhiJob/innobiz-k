@@ -4,9 +4,16 @@ import type {
   PaginatedApplications,
   User,
   Document,
+  MonthlyReport,
   AdminStats,
   PaginatedAdminApplications,
   AdminApplicationDetail,
+  WeeklyReportShareResponse,
+  WeeklyReportEmailResponse,
+  NotificationListResponse,
+  HeroUpdate,
+  PaginatedSpaceRequests,
+  SpaceRequest,
 } from "@/types/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000/api";
@@ -83,7 +90,10 @@ export const authApi = {
       token,
     }),
 
-  updateProfile: (token: string, input: { name?: string; email?: string }) =>
+  updateProfile: (
+    token: string,
+    input: { name?: string; email?: string; notifyByEmail?: boolean; notifyInApp?: boolean },
+  ) =>
     request<User>("/auth/me", {
       method: "PATCH",
       token,
@@ -117,7 +127,7 @@ export const applicationApi = {
       stage?: string;
       description?: string;
       teamSize?: number;
-      fundingNeeded?: number;
+      supportInterests?: string[];
       founders?: FounderInput[];
     },
   ) =>
@@ -136,7 +146,7 @@ export const applicationApi = {
       stage?: string;
       description?: string;
       teamSize?: number;
-      fundingNeeded?: number;
+      supportInterests?: string[];
       founders?: FounderInput[];
     },
   ) =>
@@ -174,6 +184,26 @@ export const applicationApi = {
       method: "DELETE",
       token,
     }),
+
+  uploadMonthlyReport: (
+    token: string,
+    applicationId: string,
+    input: { headline: string; description: string; file: File; reportMonth?: string },
+  ) => {
+    const formData = new FormData();
+    formData.append("headline", input.headline);
+    formData.append("description", input.description);
+    if (input.reportMonth) {
+      formData.append("reportMonth", input.reportMonth);
+    }
+    formData.append("file", input.file);
+
+    return request<MonthlyReport>(`/applications/${applicationId}/monthly-reports`, {
+      method: "POST",
+      token,
+      body: formData,
+    });
+  },
 };
 
 export const adminApi = {
@@ -229,6 +259,210 @@ export const adminApi = {
     request<Application>(`/admin/applications/${id}/reject`, {
       method: "POST",
       token,
+      body: input,
+    }),
+
+  createMonthlyReportShare: (
+    token: string,
+    input?: { startDate?: string; endDate?: string; expiresInDays?: number },
+  ) =>
+    request<WeeklyReportShareResponse>("/admin/reports/monthly/share", {
+      method: "POST",
+      token,
+      body: input ?? {},
+    }),
+
+  emailMonthlyReport: (
+    token: string,
+    input: {
+      recipients: string[];
+      format?: "pdf" | "docx" | "txt" | "csv";
+      startDate?: string;
+      endDate?: string;
+      expiresInDays?: number;
+    },
+  ) =>
+    request<WeeklyReportEmailResponse>("/admin/reports/monthly/email", {
+      method: "POST",
+      token,
+      body: input,
+    }),
+
+  listHeroUpdates: (token: string) =>
+    request<HeroUpdate[]>("/admin/hero-updates", {
+      method: "GET",
+      token,
+    }),
+
+  createHeroUpdate: (
+    token: string,
+    input: {
+      title: string;
+      message: string;
+      ctaLabel?: string;
+      ctaUrl?: string;
+      published?: boolean;
+      media?: File | null;
+    },
+  ) => {
+    const formData = new FormData();
+    formData.append("title", input.title);
+    formData.append("message", input.message);
+    if (input.ctaLabel) {
+      formData.append("ctaLabel", input.ctaLabel);
+    }
+    if (input.ctaUrl) {
+      formData.append("ctaUrl", input.ctaUrl);
+    }
+    if (input.published !== undefined) {
+      formData.append("published", String(input.published));
+    }
+    if (input.media) {
+      formData.append("media", input.media);
+    }
+    return request<HeroUpdate>("/admin/hero-updates", {
+      method: "POST",
+      token,
+      body: formData,
+    });
+  },
+
+  updateHeroUpdate: (
+    token: string,
+    id: string,
+    input: {
+      title?: string;
+      message?: string;
+      ctaLabel?: string | null;
+      ctaUrl?: string | null;
+      published?: boolean;
+      media?: File | null;
+    },
+  ) => {
+    const formData = new FormData();
+    if (input.title !== undefined) {
+      formData.append("title", input.title);
+    }
+    if (input.message !== undefined) {
+      formData.append("message", input.message);
+    }
+    if (input.ctaLabel !== undefined) {
+      formData.append("ctaLabel", input.ctaLabel ?? "");
+    }
+    if (input.ctaUrl !== undefined) {
+      formData.append("ctaUrl", input.ctaUrl ?? "");
+    }
+    if (input.published !== undefined) {
+      formData.append("published", String(input.published));
+    }
+    if (input.media) {
+      formData.append("media", input.media);
+    }
+    return request<HeroUpdate>(`/admin/hero-updates/${id}`, {
+      method: "PATCH",
+      token,
+      body: formData,
+    });
+  },
+
+  deleteHeroUpdate: (token: string, id: string) =>
+    request<null>(`/admin/hero-updates/${id}`, {
+      method: "DELETE",
+      token,
+    }),
+
+  listSpaceRequests: (
+    token: string,
+    options?: { page?: number; pageSize?: number; status?: string; search?: string },
+  ) => {
+    const query = new URLSearchParams();
+    if (options?.page) {
+      query.set("page", String(options.page));
+    }
+    if (options?.pageSize) {
+      query.set("pageSize", String(options.pageSize));
+    }
+    if (options?.status) {
+      query.set("status", options.status);
+    }
+    if (options?.search && options.search.trim().length >= 2) {
+      query.set("search", options.search.trim());
+    }
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    return request<PaginatedSpaceRequests>(`/space-requests${suffix}`, {
+      method: "GET",
+      token,
+    });
+  },
+
+  approveSpaceRequest: (token: string, id: string, input?: { adminNotes?: string }) =>
+    request<SpaceRequest>(`/space-requests/${id}/approve`, {
+      method: "POST",
+      token,
+      body: input ?? {},
+    }),
+
+  rejectSpaceRequest: (
+    token: string,
+    id: string,
+    input: { rejectionReason: string; adminNotes?: string },
+  ) =>
+    request<SpaceRequest>(`/space-requests/${id}/reject`, {
+      method: "POST",
+      token,
+      body: input,
+    }),
+};
+
+export const notificationApi = {
+  list: (token: string, limit = 20, unreadOnly = false) => {
+    const query = new URLSearchParams();
+    query.set("limit", String(limit));
+    if (unreadOnly) {
+      query.set("unreadOnly", "true");
+    }
+    return request<NotificationListResponse>(`/notifications?${query.toString()}`, {
+      method: "GET",
+      token,
+    });
+  },
+
+  markRead: (token: string, ids: string[]) =>
+    request<null>("/notifications/mark-read", {
+      method: "PATCH",
+      token,
+      body: { ids },
+    }),
+
+  markAllRead: (token: string) =>
+    request<null>("/notifications/mark-all-read", {
+      method: "PATCH",
+      token,
+    }),
+};
+
+export const updatesApi = {
+  list: (limit = 5) =>
+    request<HeroUpdate[]>(`/updates?limit=${limit}`, {
+      method: "GET",
+    }),
+};
+
+export const spaceRequestApi = {
+  create: (input: {
+    startupName: string;
+    contactName: string;
+    email: string;
+    phone: string;
+    teamSize?: number;
+    resourceTypes: string[];
+    startDate: string;
+    endDate: string;
+    purpose: string;
+    additionalNotes?: string;
+  }) =>
+    request<SpaceRequest>("/space-requests", {
+      method: "POST",
       body: input,
     }),
 };
