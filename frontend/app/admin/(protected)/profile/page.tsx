@@ -10,6 +10,8 @@ export default function AdminProfilePage() {
   const { user, updateProfile, logout } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [notifyByEmail, setNotifyByEmail] = useState(true);
+  const [notifyInApp, setNotifyInApp] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +22,8 @@ export default function AdminProfilePage() {
     }
     setName(user.name);
     setEmail(user.email);
+    setNotifyByEmail(user.notifyByEmail ?? true);
+    setNotifyInApp(user.notifyInApp ?? true);
   }, [user]);
 
   return (
@@ -61,7 +65,12 @@ export default function AdminProfilePage() {
             setError(null);
             setMessage(null);
             try {
-              await updateProfile({ name: name.trim(), email: email.trim() });
+              await updateProfile({
+                name: name.trim(),
+                email: email.trim(),
+                notifyByEmail,
+                notifyInApp,
+              });
               setMessage("Profile updated successfully.");
             } catch (err) {
               if (err instanceof ApiHttpError) {
@@ -99,6 +108,33 @@ export default function AdminProfilePage() {
               type="email"
               value={email}
             />
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+            <p className="text-sm font-semibold text-brand-ink">Notification preferences</p>
+            <p className="mt-1 text-xs text-slate-500">
+              Control how you receive admin updates and report alerts.
+            </p>
+            <div className="mt-4 space-y-3">
+              <label className="flex items-center justify-between gap-3">
+                <span className="text-sm text-slate-700">In-app notifications</span>
+                <input
+                  checked={notifyInApp}
+                  className="h-5 w-5 accent-brand-blue"
+                  onChange={(event) => setNotifyInApp(event.target.checked)}
+                  type="checkbox"
+                />
+              </label>
+              <label className="flex items-center justify-between gap-3">
+                <span className="text-sm text-slate-700">Email notifications</span>
+                <input
+                  checked={notifyByEmail}
+                  className="h-5 w-5 accent-brand-blue"
+                  onChange={(event) => setNotifyByEmail(event.target.checked)}
+                  type="checkbox"
+                />
+              </label>
+            </div>
           </div>
 
           {message ? (
