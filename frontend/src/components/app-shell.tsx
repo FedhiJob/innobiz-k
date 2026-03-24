@@ -20,7 +20,7 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-white/70 bg-white/80 backdrop-blur-sm">
+      <header className="relative z-[100] border-b border-white/70 bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-4 py-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Link className="flex items-center gap-3" href="/">
@@ -96,7 +96,7 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+      <main className="relative z-0 mx-auto max-w-6xl px-4 py-8">{children}</main>
     </div>
   );
 };
