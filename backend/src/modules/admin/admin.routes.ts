@@ -9,6 +9,13 @@ import {
   listApplicationsAdmin,
   rejectApplication,
 } from "./admin.controller";
+import {
+  createHeroUpdate,
+  deleteHeroUpdate,
+  listHeroUpdatesAdmin,
+  updateHeroUpdate,
+} from "../hero-updates/hero-update.controller";
+import { heroMediaUpload } from "../hero-updates/hero-update.upload";
 import { createMonthlyReportShare, emailMonthlyReport } from "../reports/report.controller";
 
 export const adminRouter = Router();
@@ -20,5 +27,9 @@ adminRouter.get("/applications", asyncHandler(listApplicationsAdmin));
 adminRouter.get("/applications/:id", asyncHandler(getApplicationAdmin));
 adminRouter.post("/applications/:id/approve", asyncHandler(approveApplication));
 adminRouter.post("/applications/:id/reject", asyncHandler(rejectApplication));
+adminRouter.get("/hero-updates", asyncHandler(listHeroUpdatesAdmin));
+adminRouter.post("/hero-updates", heroMediaUpload.single("media"), asyncHandler(createHeroUpdate));
+adminRouter.patch("/hero-updates/:id", heroMediaUpload.single("media"), asyncHandler(updateHeroUpdate));
+adminRouter.delete("/hero-updates/:id", asyncHandler(deleteHeroUpdate));
 adminRouter.post("/reports/monthly/share", asyncHandler(createMonthlyReportShare));
 adminRouter.post("/reports/monthly/email", asyncHandler(emailMonthlyReport));
