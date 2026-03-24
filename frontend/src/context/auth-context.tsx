@@ -21,7 +21,12 @@ interface AuthContextValue {
   register: (input: { name: string; email: string; password: string }) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
-  updateProfile: (input: { name?: string; email?: string }) => Promise<void>;
+  updateProfile: (input: {
+    name?: string;
+    email?: string;
+    notifyByEmail?: boolean;
+    notifyInApp?: boolean;
+  }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -89,7 +94,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   }, []);
 
-  const updateProfile = useCallback(async (input: { name?: string; email?: string }) => {
+  const updateProfile = useCallback(
+    async (input: {
+      name?: string;
+      email?: string;
+      notifyByEmail?: boolean;
+      notifyInApp?: boolean;
+    }) => {
     const activeToken = tokenStorage.get();
     if (!activeToken) {
       throw new Error("Not authenticated");
@@ -97,7 +108,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const updated = await authApi.updateProfile(activeToken, input);
     setUser(updated);
-  }, []);
+    },
+    [],
+  );
 
   const value = useMemo(
     () => ({
