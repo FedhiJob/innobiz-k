@@ -4,6 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth-context";
+import { Reveal } from "@/components/reveal";
+import { updatesApi } from "@/lib/api";
+import type { HeroUpdate } from "@/types/api";
 
 const highlights = [
   {
@@ -28,7 +31,7 @@ const officialDescription = [
   "In Tracon Tower, KOICA PMC has run an incubator program as part of the pilot program. Under this program, 34 ICT-based businesses were admitted in four batches and received a grant of 20,000 USD overall, seven weeks of training following admission, and six months of mentorship, coaching, unlimited internet access, and working space. The InnoBiz-K Ethiopia program has worked hard and has been successful in providing well-educated and experienced mentors and trainers to make sure entrepreneurs get the help they need where they need it.",
 ];
 
-const heroSlides = [
+const defaultHeroSlides = [
   {
     title: "Build with a team that cares about your runway.",
     description:
@@ -46,6 +49,17 @@ const heroSlides = [
   },
 ];
 
+const mapUpdatesToSlides = (updates: HeroUpdate[]) =>
+  updates.map((update) => ({
+    title: update.title,
+    description: update.message,
+    ctaLabel: update.ctaLabel ?? undefined,
+    ctaUrl: update.ctaUrl ?? undefined,
+    createdAt: update.createdAt,
+    mediaUrl: update.mediaUrl ?? undefined,
+    mediaType: update.mediaType ?? undefined,
+  }));
+
 const partners = [
   {
     name: "KOICA",
@@ -55,7 +69,28 @@ const partners = [
   {
     name: "Ethiopian Ministry of Innovation and Technology",
     description: "Government partner driving Ethiopia's innovation ecosystem.",
-    logo: "/partners/miit.png",
+    logo: "/partners/mint.png",
+  },
+];
+
+const testimonials = [
+  {
+    quote:
+      "InnoBiz-K helped us validate our product and connect with mentors who actually understand our market.",
+    name: "Startup Founder",
+    role: "FinTech Cohort",
+  },
+  {
+    quote:
+      "The workspace and accountability check-ins kept our team focused through critical product pivots.",
+    name: "Program Participant",
+    role: "AgriTech Cohort",
+  },
+  {
+    quote:
+      "We learned how to pitch and package our story. The investor readiness sessions were the breakthrough.",
+    name: "Incubated Startup",
+    role: "HealthTech Cohort",
   },
 ];
 
@@ -116,6 +151,7 @@ const steps = [
 export default function HomePage() {
   const { user, isLoading } = useAuth();
   const [heroIndex, setHeroIndex] = useState(0);
+  const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
   const [logoErrors, setLogoErrors] = useState<Record<string, boolean>>({});
   const primaryCta =
     user && !isLoading
@@ -134,6 +170,21 @@ export default function HomePage() {
       setHeroIndex((current) => (current + 1) % heroSlides.length);
     }, 5000);
     return () => clearInterval(interval);
+  }, [heroSlides.length]);
+
+  useEffect(() => {
+    const loadUpdates = async () => {
+      try {
+        const updates = await updatesApi.list(6);
+        if (updates.length > 0) {
+          setHeroSlides(mapUpdatesToSlides(updates));
+          setHeroIndex(0);
+        }
+      } catch {
+        // keep default slides if updates fail
+      }
+    };
+    void loadUpdates();
   }, []);
 
   return (
@@ -226,24 +277,54 @@ export default function HomePage() {
           </div>
           <div className="relative">
             <div className="relative overflow-hidden rounded-[36px] border border-white/70 shadow-panel">
-              <video
-                autoPlay
-                className="h-[360px] w-full object-cover"
-                loop
-                muted
-                playsInline
-                poster="/hero/innobiz-hero.jpg"
-              >
-                <source src="/hero/innobiz-hero.mp4" type="video/mp4" />
-              </video>
+              {heroSlides[heroIndex].mediaUrl ? (
+                heroSlides[heroIndex].mediaType === "VIDEO" ? (
+                  <video
+                    autoPlay
+                    className="h-[360px] w-full object-cover"
+                    loop
+                    muted
+                    playsInline
+                    poster="/hero/innobiz-hero.jpg"
+                    src={heroSlides[heroIndex].mediaUrl}
+                  />
+                ) : (
+                  <Image
+                    alt={heroSlides[heroIndex].title}
+                    className="h-[360px] w-full object-cover"
+                    height={360}
+                    src={heroSlides[heroIndex].mediaUrl}
+                    width={560}
+                  />
+                )
+              ) : (
+                <video
+                  autoPlay
+                  className="h-[360px] w-full object-cover"
+                  loop
+                  muted
+                  playsInline
+                  poster="/hero/innobiz-hero.jpg"
+                >
+                  <source src="/hero/innobiz-hero.mp4" type="video/mp4" />
+                </video>
+              )}
               <div className="absolute inset-0 bg-gradient-to-b from-brand-ink/15 via-brand-ink/25 to-brand-ink/60" />
               <div className="absolute inset-0 flex flex-col justify-between p-5 text-white">
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/80">
-                  Hero Story
+                  Featured Update
                 </div>
                 <div className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm">
                   <p className="text-lg font-semibold">{heroSlides[heroIndex].title}</p>
                   <p className="mt-2 text-sm text-white/80">{heroSlides[heroIndex].description}</p>
+                  {heroSlides[heroIndex].ctaLabel && heroSlides[heroIndex].ctaUrl ? (
+                    <Link
+                      className="mt-3 inline-flex items-center justify-center rounded-full border border-white/30 px-4 py-2 text-xs font-semibold text-white/90 hover:bg-white/10"
+                      href={heroSlides[heroIndex].ctaUrl}
+                    >
+                      {heroSlides[heroIndex].ctaLabel}
+                    </Link>
+                  ) : null}
                   <div className="mt-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {heroSlides.map((_, index) => (
@@ -283,100 +364,130 @@ export default function HomePage() {
         </section>
       </div>
 
-      <section className="mx-auto w-full max-w-6xl px-6">
-        <div className="rounded-[32px] border border-brand-blue/10 bg-white/90 p-6 shadow-panel">
-          <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr] md:items-center">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-blue">Impact Snapshot</p>
-              <h2 className="mt-2 text-2xl font-bold text-brand-ink">
-                A collaborative ecosystem built for founders who want to move fast.
-              </h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Our incubation community blends workspace, mentorship, and structured feedback so startups can focus on
-                progress.
-              </p>
+      <Reveal>
+        <section className="mx-auto w-full max-w-6xl px-6">
+          <div className="rounded-[32px] border border-brand-blue/10 bg-white/90 p-6 shadow-panel">
+            <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr] md:items-center">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-blue">Impact Snapshot</p>
+                <h2 className="mt-2 text-2xl font-bold text-brand-ink">
+                  A collaborative ecosystem built for founders who want to move fast.
+                </h2>
+                <p className="mt-2 text-sm text-slate-600">
+                  Our incubation community blends workspace, mentorship, and structured feedback so startups can focus on
+                  progress.
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  { label: "Mentors & Coaches", value: "25+" },
+                  { label: "Active Cohorts", value: "4" },
+                  { label: "Workshops Hosted", value: "60+" },
+                  { label: "Partner Institutions", value: "10" },
+                ].map((item) => (
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4" key={item.label}>
+                    <p className="text-xl font-bold text-brand-ink">{item.value}</p>
+                    <p className="text-xs font-semibold text-slate-500">{item.label}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {[
-                { label: "Mentors & Coaches", value: "25+" },
-                { label: "Active Cohorts", value: "4" },
-                { label: "Workshops Hosted", value: "60+" },
-                { label: "Partner Institutions", value: "10" },
-              ].map((item) => (
-                <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4" key={item.label}>
-                  <p className="text-xl font-bold text-brand-ink">{item.value}</p>
-                  <p className="text-xs font-semibold text-slate-500">{item.label}</p>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {highlights.map((item) => (
+                <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-panel" key={item.title}>
+                  <p className="text-sm font-semibold text-brand-ink">{item.title}</p>
+                  <p className="mt-1 text-sm text-slate-600">{item.description}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {highlights.map((item) => (
-              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-panel" key={item.title}>
-                <p className="text-sm font-semibold text-brand-ink">{item.title}</p>
-                <p className="mt-1 text-sm text-slate-600">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      </Reveal>
 
-      <section className="mx-auto w-full max-w-6xl px-6 py-16">
-        <div className="rounded-[32px] border border-white/70 bg-white/90 p-8 shadow-panel">
-          <div className="flex flex-col gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-greenDark">Partners</p>
-            <h2 className="text-3xl font-bold text-brand-ink">
-              We collaborate with institutions committed to Ethiopia’s startup ecosystem.
-            </h2>
-            <p className="text-base text-slate-600">
-              InnoBiz-K is supported by strategic partners who help deliver funding, infrastructure, and global
-              expertise.
-            </p>
-          </div>
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {partners.map((partner) => {
-              const hasError = logoErrors[partner.name];
-              return (
-                <div
-                  className="flex flex-col gap-4 rounded-3xl border border-slate-100 bg-slate-50 p-6 sm:flex-row sm:items-center"
-                  key={partner.name}
-                >
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white bg-white shadow-panel">
-                    {!hasError ? (
-                      <Image
-                        alt={`${partner.name} logo`}
-                        height={48}
-                        src={partner.logo}
-                        width={48}
-                        onError={() =>
-                          setLogoErrors((current) => ({
-                            ...current,
-                            [partner.name]: true,
-                          }))
-                        }
-                      />
-                    ) : (
-                      <span className="text-xs font-semibold text-brand-ink">
-                        {partner.name
-                          .split(" ")
-                          .slice(0, 2)
-                          .map((word) => word.charAt(0))
-                          .join("")}
-                      </span>
-                    )}
+      <Reveal>
+        <section className="mx-auto w-full max-w-6xl px-6 py-16">
+          <div className="rounded-[32px] border border-white/70 bg-white/90 p-8 shadow-panel">
+            <div className="flex flex-col gap-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-greenDark">Partners</p>
+              <h2 className="text-3xl font-bold text-brand-ink">
+                We collaborate with institutions committed to Ethiopia's startup ecosystem.
+              </h2>
+              <p className="text-base text-slate-600">
+                InnoBiz-K is supported by strategic partners who help deliver funding, infrastructure, and global
+                expertise.
+              </p>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {partners.map((partner) => {
+                const hasError = logoErrors[partner.name];
+                return (
+                  <div
+                    className="flex flex-col gap-4 rounded-3xl border border-slate-100 bg-slate-50 p-6 sm:flex-row sm:items-center"
+                    key={partner.name}
+                  >
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white bg-white shadow-panel">
+                      {!hasError ? (
+                        <Image
+                          alt={`${partner.name} logo`}
+                          height={48}
+                          src={partner.logo}
+                          width={48}
+                          onError={() =>
+                            setLogoErrors((current) => ({
+                              ...current,
+                              [partner.name]: true,
+                            }))
+                          }
+                        />
+                      ) : (
+                        <span className="text-xs font-semibold text-brand-ink">
+                          {partner.name
+                            .split(" ")
+                            .slice(0, 2)
+                            .map((word) => word.charAt(0))
+                            .join("")}
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-brand-ink">{partner.name}</p>
+                      <p className="mt-1 text-sm text-slate-600">{partner.description}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-brand-ink">{partner.name}</p>
-                    <p className="mt-1 text-sm text-slate-600">{partner.description}</p>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="mx-auto w-full max-w-6xl px-6 pb-16">
+          <div className="rounded-[32px] border border-brand-yellow/20 bg-white/90 p-8 shadow-panel">
+            <div className="flex flex-col gap-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-yellow">Testimonials</p>
+              <h2 className="text-3xl font-bold text-brand-ink">Founders talking about the InnoBiz-K experience.</h2>
+              <p className="text-base text-slate-600">
+                Real feedback from teams who built inside the incubation program.
+              </p>
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {testimonials.map((testimonial) => (
+                <div className="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-panel" key={testimonial.quote}>
+                  <p className="text-sm text-slate-600">"{testimonial.quote}"</p>
+                  <div className="mt-4">
+                    <p className="text-sm font-semibold text-brand-ink">{testimonial.name}</p>
+                    <p className="text-xs text-slate-500">{testimonial.role}</p>
                   </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </Reveal>
 
-      <section id="about" className="mx-auto w-full max-w-6xl px-6 py-16">
+      <Reveal>
+        <section id="about" className="mx-auto w-full max-w-6xl px-6 py-16">
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-greenDark">About InnoBiz-K</p>
@@ -398,7 +509,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </Reveal>
 
+      <Reveal>
       <section id="programs" className="mx-auto w-full max-w-6xl px-6 py-16">
         <div className="rounded-[32px] border border-white/70 bg-white/90 p-8 shadow-panel">
           <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-center">
@@ -426,7 +539,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </Reveal>
 
+      <Reveal>
       <section id="spaces" className="mx-auto w-full max-w-6xl px-6 py-16">
         <div className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-blue">Office Spaces</p>
@@ -467,7 +582,9 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+      </Reveal>
 
+      <Reveal>
       <section id="apply" className="mx-auto w-full max-w-6xl px-6 pb-16 pt-8">
         <div className="rounded-[32px] border border-brand-blue/20 bg-gradient-to-r from-white via-brand-blue/5 to-brand-green/10 p-8 shadow-panel">
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
@@ -493,7 +610,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </Reveal>
 
+      <Reveal>
       <section className="mx-auto w-full max-w-6xl px-6 pb-20 pt-0">
         <div className="rounded-[32px] border border-brand-green/20 bg-white/90 p-8 shadow-panel">
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
@@ -516,6 +635,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </Reveal>
 
       <footer className="border-t border-white/70 bg-white/80">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-8 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
