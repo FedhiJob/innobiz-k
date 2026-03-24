@@ -20,7 +20,16 @@ export const updateProfileSchema = z
   .object({
     name: z.string().trim().min(2).max(100).optional(),
     email: z.string().trim().email().optional(),
+    notifyByEmail: z.boolean().optional(),
+    notifyInApp: z.boolean().optional(),
   })
-  .refine((value) => value.name !== undefined || value.email !== undefined, {
-    message: "At least one field is required",
-  });
+  .refine(
+    (value) =>
+      value.name !== undefined ||
+      value.email !== undefined ||
+      value.notifyByEmail !== undefined ||
+      value.notifyInApp !== undefined,
+    {
+      message: "At least one field is required",
+    },
+  );
