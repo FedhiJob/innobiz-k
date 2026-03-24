@@ -8,7 +8,14 @@ import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
 import { loginSchema, registerSchema, updateProfileSchema } from "./auth.schemas";
 
-const buildAuthPayload = (user: { id: string; name: string; email: string; role: Role }) => {
+const buildAuthPayload = (user: {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  notifyByEmail?: boolean;
+  notifyInApp?: boolean;
+}) => {
   const accessToken = signAccessToken({
     id: user.id,
     name: user.name,
@@ -49,6 +56,8 @@ export const register = async (req: Request, res: Response) => {
       name: true,
       email: true,
       role: true,
+      notifyByEmail: true,
+      notifyInApp: true,
     },
   });
 
@@ -106,6 +115,8 @@ export const login = async (req: Request, res: Response) => {
       name: true,
       email: true,
       role: true,
+      notifyByEmail: true,
+      notifyInApp: true,
     },
   });
 
@@ -126,6 +137,8 @@ export const me = async (req: Request, res: Response) => {
       name: true,
       email: true,
       role: true,
+      notifyByEmail: true,
+      notifyInApp: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -167,12 +180,16 @@ export const updateProfile = async (req: Request, res: Response) => {
     data: {
       name: payload.name,
       email: payload.email,
+      notifyByEmail: payload.notifyByEmail,
+      notifyInApp: payload.notifyInApp,
     },
     select: {
       id: true,
       name: true,
       email: true,
       role: true,
+      notifyByEmail: true,
+      notifyInApp: true,
       createdAt: true,
       updatedAt: true,
     },
