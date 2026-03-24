@@ -1,10 +1,11 @@
 import type { Request, Response } from "express";
-import { Role } from "@prisma/client";
+import { NotificationType, Role } from "@prisma/client";
 import path from "path";
 import fs from "fs/promises";
 import { prisma } from "../../config/prisma";
 import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
+import { notifyAdmins } from "../../services/notification.service";
 import { documentUploadConfig } from "./document.upload";
 
 const uploadsDir = path.resolve(process.cwd(), "uploads");
@@ -86,6 +87,7 @@ export const uploadDocument = async (req: Request, res: Response) => {
     select: {
       id: true,
       status: true,
+      companyName: true,
       _count: {
         select: {
           documents: true,
@@ -132,6 +134,13 @@ export const uploadDocument = async (req: Request, res: Response) => {
       fileSize: req.file.size,
       mimeType: req.file.mimetype,
     },
+  });
+
+  await notifyAdmins({
+    type: NotificationType.DOCUMENT_UPLOADED,
+    title: "Pitch deck uploaded",
+    message: `${req.user.name} uploaded a pitch deck for ${application.companyName ?? "their application"}.`,
+    link: `/admin/applications/${applicationId}`,
   });
 
   return sendSuccess(res, document, "Document uploaded", 201);
