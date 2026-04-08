@@ -30,6 +30,16 @@ const nextConfig = {
         port: "4000",
         pathname: "/uploads/**",
       },
+      {
+        protocol: "https",
+        hostname: "innobiz-k.onrender.com",
+        pathname: "/api/updates/media/**",
+      },
+      {
+        protocol: "https",
+        hostname: "innobiz-k.onrender.com",
+        pathname: "/uploads/**",
+      },
     ],
   },
 };
