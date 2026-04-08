@@ -31,7 +31,17 @@ const officialDescription = [
   "In Tracon Tower, KOICA PMC has run an incubator program as part of the pilot program. Under this program, 34 ICT-based businesses were admitted in four batches and received a grant of 20,000 USD overall, seven weeks of training following admission, and six months of mentorship, coaching, unlimited internet access, and working space. The InnoBiz-K Ethiopia program has worked hard and has been successful in providing well-educated and experienced mentors and trainers to make sure entrepreneurs get the help they need where they need it.",
 ];
 
-const defaultHeroSlides = [
+type HeroSlide = {
+  title: string;
+  description: string;
+  ctaLabel?: string;
+  ctaUrl?: string;
+  createdAt?: string;
+  mediaUrl?: string;
+  mediaType?: HeroUpdate["mediaType"];
+};
+
+const defaultHeroSlides: HeroSlide[] = [
   {
     title: "Build with a team that cares about your runway.",
     description:
@@ -49,7 +59,7 @@ const defaultHeroSlides = [
   },
 ];
 
-const mapUpdatesToSlides = (updates: HeroUpdate[]) =>
+const mapUpdatesToSlides = (updates: HeroUpdate[]): HeroSlide[] =>
   updates.map((update) => ({
     title: update.title,
     description: update.message,
@@ -151,7 +161,7 @@ const steps = [
 export default function HomePage() {
   const { user, isLoading } = useAuth();
   const [heroIndex, setHeroIndex] = useState(0);
-  const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(defaultHeroSlides);
   const [logoErrors, setLogoErrors] = useState<Record<string, boolean>>({});
   const primaryCta =
     user && !isLoading
