@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { MobileMenuButton } from "@/components/mobile-menu-button";
 import { useAuth } from "@/context/auth-context";
 import { Reveal } from "@/components/reveal";
 import { updatesApi } from "@/lib/api";
@@ -209,6 +210,7 @@ export default function HomePage() {
   const { user, isLoading } = useAuth();
   const [heroIndex, setHeroIndex] = useState(0);
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(defaultHeroSlides);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const primaryCta =
     user && !isLoading
       ? {
@@ -243,6 +245,10 @@ export default function HomePage() {
     void loadUpdates();
   }, []);
 
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [user, isLoading]);
+
   return (
     <main className="min-h-screen text-brand-ink">
       <div className="relative overflow-hidden">
@@ -251,39 +257,85 @@ export default function HomePage() {
         <div className="pointer-events-none absolute bottom-0 right-0 h-80 w-80 rounded-full bg-brand-blue/20 blur-[140px] animate-ink-pulse" />
         <div className="pointer-events-none absolute left-10 top-40 h-16 w-16 rounded-full bg-brand-orange/20 blur-2xl animate-ink-drift-slow" />
 
-        <header className="relative z-10 mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-6">
-          <Link className="flex items-center gap-3" href="/">
-            <Image src="/ink-logo.png" alt="InnoBiz-K logo" width={56} height={40} />
-            <div>
-              <p className="text-base font-semibold text-brand-ink">InnoBiz-K Ethiopia</p>
-              <p className="text-xs text-slate-500">Incubation Application Portal</p>
+        <header className="relative z-10 mx-auto w-full max-w-6xl px-6 py-6">
+          <div className="flex items-center justify-between gap-4">
+            <Link className="flex min-w-0 items-center gap-3" href="/">
+              <Image src="/ink-logo.png" alt="InnoBiz-K logo" width={56} height={40} />
+              <div className="min-w-0">
+                <p className="truncate text-base font-semibold text-brand-ink">InnoBiz-K Ethiopia</p>
+                <p className="truncate text-xs text-slate-500">Incubation Application Portal</p>
+              </div>
+            </Link>
+
+            <div className="hidden items-center gap-6 lg:flex">
+              <nav className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600">
+                <a className="transition hover:text-brand-blue" href="#about">
+                  About
+                </a>
+                <a className="transition hover:text-brand-blue" href="#programs">
+                  Programs
+                </a>
+                <a className="transition hover:text-brand-blue" href="#spaces">
+                  Office Spaces
+                </a>
+                <Link className="transition hover:text-brand-blue" href="/space-request">
+                  Request Space
+                </Link>
+                <a className="transition hover:text-brand-blue" href="#apply">
+                  Apply
+                </a>
+              </nav>
+              <div className="flex flex-wrap items-center gap-3">
+                <Link className="btn-secondary" href={secondaryCta.href}>
+                  {secondaryCta.label}
+                </Link>
+                <Link className="btn-primary" href={primaryCta.href}>
+                  {primaryCta.label}
+                </Link>
+              </div>
             </div>
-          </Link>
-          <nav className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600">
-            <a className="transition hover:text-brand-blue" href="#about">
-              About
-            </a>
-            <a className="transition hover:text-brand-blue" href="#programs">
-              Programs
-            </a>
-            <a className="transition hover:text-brand-blue" href="#spaces">
-              Office Spaces
-            </a>
-            <Link className="transition hover:text-brand-blue" href="/space-request">
-              Request Space
-            </Link>
-            <a className="transition hover:text-brand-blue" href="#apply">
-              Apply
-            </a>
-          </nav>
-          <div className="flex flex-wrap items-center gap-3">
-            <Link className="btn-secondary" href={secondaryCta.href}>
-              {secondaryCta.label}
-            </Link>
-            <Link className="btn-primary" href={primaryCta.href}>
-              {primaryCta.label}
-            </Link>
+
+            <div className="lg:hidden">
+              <MobileMenuButton
+                isOpen={mobileMenuOpen}
+                onClick={() => setMobileMenuOpen((current) => !current)}
+              />
+            </div>
           </div>
+
+          {mobileMenuOpen ? (
+            <div className="mt-4 rounded-[28px] border border-white/80 bg-white/95 p-4 shadow-panel backdrop-blur-sm lg:hidden">
+              <nav className="flex flex-col gap-2 text-sm font-semibold text-slate-700">
+                <a className="rounded-2xl px-4 py-3 transition hover:bg-slate-50" href="#about" onClick={() => setMobileMenuOpen(false)}>
+                  About
+                </a>
+                <a className="rounded-2xl px-4 py-3 transition hover:bg-slate-50" href="#programs" onClick={() => setMobileMenuOpen(false)}>
+                  Programs
+                </a>
+                <a className="rounded-2xl px-4 py-3 transition hover:bg-slate-50" href="#spaces" onClick={() => setMobileMenuOpen(false)}>
+                  Office Spaces
+                </a>
+                <Link
+                  className="rounded-2xl px-4 py-3 transition hover:bg-slate-50"
+                  href="/space-request"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Request Space
+                </Link>
+                <a className="rounded-2xl px-4 py-3 transition hover:bg-slate-50" href="#apply" onClick={() => setMobileMenuOpen(false)}>
+                  Apply
+                </a>
+              </nav>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <Link className="btn-secondary text-center" href={secondaryCta.href} onClick={() => setMobileMenuOpen(false)}>
+                  {secondaryCta.label}
+                </Link>
+                <Link className="btn-primary text-center" href={primaryCta.href} onClick={() => setMobileMenuOpen(false)}>
+                  {primaryCta.label}
+                </Link>
+              </div>
+            </div>
+          ) : null}
         </header>
 
         <section className="relative z-10 mx-auto grid w-full max-w-6xl gap-8 px-6 pb-16 pt-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
