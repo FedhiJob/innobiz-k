@@ -162,6 +162,46 @@ h4 {
   animation: notification-ping 1.6s ease-out infinite;
 }
 
+.partner-marquee-shell {
+  position: relative;
+  overflow: hidden;
+  margin-inline: -0.5rem;
+  padding-inline: 0.5rem;
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.partner-marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: max-content;
+  animation: partner-marquee 38s linear infinite;
+}
+
+.partner-logo-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 11rem;
+  height: 5.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 1.75rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  flex: 0 0 auto;
+}
+
+@keyframes partner-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 0.5rem));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ink-logo-image {
     animation: none;
@@ -178,5 +218,9 @@ h4 {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .partner-marquee-track {
+    animation: none;
   }
 }
