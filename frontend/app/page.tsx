@@ -8,21 +8,34 @@ import { Reveal } from "@/components/reveal";
 import { updatesApi } from "@/lib/api";
 import type { HeroUpdate } from "@/types/api";
 
-const highlights = [
+const impactMetrics = [
+  { label: "Mentors & coaches", value: "25+" },
+  { label: "Active cohorts", value: "4" },
+  { label: "Workshops hosted", value: "60+" },
+  { label: "Partner institutions", value: "10" },
+];
+
+const impactTracks = [
   {
+    eyebrow: "Founder Support",
     title: "A home for Ethiopian founders",
     description:
-      "We offer tailored incubation, mentoring, and visibility to help high-potential startups grow into investable businesses.",
+      "Tailored incubation, mentoring, and accountability that help high-potential startups grow into investable businesses.",
+    accent: "bg-brand-yellow",
   },
   {
+    eyebrow: "Network Access",
     title: "People, connection, expansion",
     description:
-      "Our programs connect founders to partners, markets, and a trusted community that keeps momentum high.",
+      "A trusted ecosystem that links founders to partners, markets, and the relationships that create momentum.",
+    accent: "bg-brand-greenDark",
   },
   {
+    eyebrow: "Execution",
     title: "Hands-on operational support",
     description:
-      "We provide practical guidance on product, finance, and go-to-market execution with monthly check-ins.",
+      "Practical guidance on product, finance, and go-to-market work with structured check-ins that keep progress visible.",
+    accent: "bg-brand-blue",
   },
 ];
 
@@ -409,37 +422,45 @@ export default function HomePage() {
 
       <Reveal>
         <section className="mx-auto w-full max-w-6xl px-6">
-          <div className="rounded-[32px] border border-brand-blue/10 bg-white/90 p-6 shadow-panel">
-            <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr] md:items-center">
-              <div>
+          <div className="rounded-[32px] border border-brand-blue/10 bg-white/90 p-8 shadow-panel">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-blue">Impact Snapshot</p>
-                <h2 className="mt-2 text-2xl font-bold text-brand-ink">
-                  A collaborative ecosystem built for founders who want to move fast.
+                <h2 className="mt-2 text-2xl font-bold text-brand-ink sm:text-3xl">
+                  Momentum built through guidance, space, and ecosystem trust.
                 </h2>
-                <p className="mt-2 text-sm text-slate-600">
-                  Our incubation community blends workspace, mentorship, and structured feedback so startups can focus on
-                  progress.
+                <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">
+                  InnoBiz-K combines workspace, mentorship, and structured founder support so teams can stay focused on
+                  progress instead of navigating alone.
                 </p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {[
-                  { label: "Mentors & Coaches", value: "25+" },
-                  { label: "Active Cohorts", value: "4" },
-                  { label: "Workshops Hosted", value: "60+" },
-                  { label: "Partner Institutions", value: "10" },
-                ].map((item) => (
-                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4" key={item.label}>
-                    <p className="text-xl font-bold text-brand-ink">{item.value}</p>
-                    <p className="text-xs font-semibold text-slate-500">{item.label}</p>
+
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[30rem]">
+                {impactMetrics.map((item) => (
+                  <div
+                    className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-5 text-center"
+                    key={item.label}
+                  >
+                    <p className="text-2xl font-bold text-brand-ink">{item.value}</p>
+                    <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      {item.label}
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              {highlights.map((item) => (
-                <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-panel" key={item.title}>
-                  <p className="text-sm font-semibold text-brand-ink">{item.title}</p>
-                  <p className="mt-1 text-sm text-slate-600">{item.description}</p>
+
+            <div className="mt-8 grid gap-4 lg:grid-cols-3">
+              {impactTracks.map((item) => (
+                <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-panel" key={item.title}>
+                  <div className="flex items-center gap-3">
+                    <span className={`h-3 w-3 rounded-full ${item.accent}`} />
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                      {item.eyebrow}
+                    </p>
+                  </div>
+                  <p className="mt-4 text-lg font-semibold text-brand-ink">{item.title}</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-600">{item.description}</p>
                 </div>
               ))}
             </div>
