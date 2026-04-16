@@ -70,17 +70,28 @@ const mapUpdatesToSlides = (updates: HeroUpdate[]): HeroSlide[] =>
     mediaType: update.mediaType ?? undefined,
   }));
 
-const partners = [
-  {
-    name: "KOICA",
-    description: "Korea International Cooperation Agency",
-    logo: "/partners/koica.png",
-  },
-  {
-    name: "Ethiopian Ministry of Innovation and Technology",
-    description: "Government partner driving Ethiopia's innovation ecosystem.",
-    logo: "/partners/mint.png",
-  },
+const partnerLogos = [
+  { name: "Addis Ababa Science and Technology University", logo: "/ink-collabs/aastu.png" },
+  { name: "Addis Ababa University", logo: "/ink-collabs/aau.png" },
+  { name: "Adama Science and Technology University", logo: "/ink-collabs/astu.png" },
+  { name: "Connect", logo: "/ink-collabs/conn.png" },
+  { name: "Dire Dawa University", logo: "/ink-collabs/ddu.png" },
+  { name: "Debre Berhan University", logo: "/ink-collabs/debre-berhan.png" },
+  { name: "European Union", logo: "/ink-collabs/eu.png" },
+  { name: "Faris", logo: "/ink-collabs/faris.png" },
+  { name: "Germany", logo: "/ink-collabs/german.png" },
+  { name: "IceAddis", logo: "/ink-collabs/iceaddis.png" },
+  { name: "Intuto", logo: "/ink-collabs/intuto.png" },
+  { name: "JICA", logo: "/ink-collabs/jica.png" },
+  { name: "Jimma University", logo: "/ink-collabs/JU.png" },
+  { name: "KOICA", logo: "/ink-collabs/koica.png" },
+  { name: "Mastercard Foundation", logo: "/ink-collabs/mastercard.png" },
+  { name: "Ministry of Innovation and Technology", logo: "/ink-collabs/mint.png" },
+  { name: "NICE", logo: "/ink-collabs/nice.png" },
+  { name: "Ninja", logo: "/ink-collabs/ninja.png" },
+  { name: "The World Bank", logo: "/ink-collabs/the-world-bank.png" },
+  { name: "UNDP", logo: "/ink-collabs/undp.png" },
+  { name: "xHub", logo: "/ink-collabs/x-hub.png" },
 ];
 
 const testimonials = [
@@ -162,7 +173,6 @@ export default function HomePage() {
   const { user, isLoading } = useAuth();
   const [heroIndex, setHeroIndex] = useState(0);
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(defaultHeroSlides);
-  const [logoErrors, setLogoErrors] = useState<Record<string, boolean>>({});
   const primaryCta =
     user && !isLoading
       ? {
@@ -420,52 +430,30 @@ export default function HomePage() {
             <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-greenDark">Partners</p>
               <h2 className="text-3xl font-bold text-brand-ink">
-                We collaborate with institutions committed to Ethiopia's startup ecosystem.
+                Trusted by institutions shaping Ethiopia's innovation ecosystem.
               </h2>
               <p className="text-base text-slate-600">
-                InnoBiz-K is supported by strategic partners who help deliver funding, infrastructure, and global
-                expertise.
+                A growing network of universities, public institutions, and ecosystem builders moves with us.
               </p>
             </div>
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {partners.map((partner) => {
-                const hasError = logoErrors[partner.name];
-                return (
+            <div className="partner-marquee-shell mt-8">
+              <div className="partner-marquee-track">
+                {[...partnerLogos, ...partnerLogos].map((partner, index) => (
                   <div
-                    className="flex flex-col gap-4 rounded-3xl border border-slate-100 bg-slate-50 p-6 sm:flex-row sm:items-center"
-                    key={partner.name}
+                    className="partner-logo-chip"
+                    key={`${partner.name}-${index}`}
+                    title={partner.name}
                   >
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white bg-white shadow-panel">
-                      {!hasError ? (
-                        <Image
-                          alt={`${partner.name} logo`}
-                          height={48}
-                          src={partner.logo}
-                          width={48}
-                          onError={() =>
-                            setLogoErrors((current) => ({
-                              ...current,
-                              [partner.name]: true,
-                            }))
-                          }
-                        />
-                      ) : (
-                        <span className="text-xs font-semibold text-brand-ink">
-                          {partner.name
-                            .split(" ")
-                            .slice(0, 2)
-                            .map((word) => word.charAt(0))
-                            .join("")}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-brand-ink">{partner.name}</p>
-                      <p className="mt-1 text-sm text-slate-600">{partner.description}</p>
-                    </div>
+                    <Image
+                      alt={`${partner.name} logo`}
+                      className="max-h-10 w-auto object-contain"
+                      height={64}
+                      src={partner.logo}
+                      width={160}
+                    />
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
           </div>
         </section>
