@@ -26,9 +26,47 @@ const highlights = [
   },
 ];
 
-const officialDescription = [
-  "A 10-million-dollar bilateral initiative on ICT-based business creation and SME support to create quality jobs in Ethiopia is being carried out by the Ministry of Innovation and Technology and the Korean International Cooperation Agency. The major goal of this project is to enhance the ICT-based startup and SME ecosystem by establishing a related platform and establishing and operating the InnoBiz-K Ethiopia. A 2000 square meter facility has been set aside by InnoBiz-K Ethiopia in the ICT Park to house maker spaces, co-working areas, an incubator, and meeting/seminar facilities for planning and hosting training sessions and events.",
-  "In Tracon Tower, KOICA PMC has run an incubator program as part of the pilot program. Under this program, 34 ICT-based businesses were admitted in four batches and received a grant of 20,000 USD overall, seven weeks of training following admission, and six months of mentorship, coaching, unlimited internet access, and working space. The InnoBiz-K Ethiopia program has worked hard and has been successful in providing well-educated and experienced mentors and trainers to make sure entrepreneurs get the help they need where they need it.",
+const aboutHighlights = [
+  {
+    title: "Human",
+    description: "Founder-first support through mentoring, coaching, and practical guidance that stays close to real startup needs.",
+    accent: "border-brand-yellow/30 bg-brand-yellow/10",
+  },
+  {
+    title: "Connection",
+    description: "A living network of partners, universities, trainers, and ecosystem builders working around the same mission.",
+    accent: "border-brand-green/30 bg-brand-green/10",
+  },
+  {
+    title: "Expansion",
+    description: "Programs designed to move teams from promising ideas toward market traction, visibility, and sustainable growth.",
+    accent: "border-brand-blue/30 bg-brand-blue/10",
+  },
+];
+
+const aboutStory = [
+  {
+    label: "What InnoBiz-K is",
+    description:
+      "A bilateral initiative between Ethiopia's Ministry of Innovation and Technology and KOICA, built to strengthen the ICT startup and SME ecosystem.",
+  },
+  {
+    label: "What founders receive",
+    description:
+      "Structured incubation, training, mentorship, unlimited internet access, workspace, and practical operational support inside a dedicated innovation facility.",
+  },
+  {
+    label: "Why it matters",
+    description:
+      "The program helps ambitious teams build stronger businesses, create quality jobs, and access the networks required to keep moving forward.",
+  },
+];
+
+const aboutMetrics = [
+  { value: "2000 sqm", label: "innovation facility" },
+  { value: "34", label: "pilot startups supported" },
+  { value: "7 weeks", label: "training in the pilot phase" },
+  { value: "6 months", label: "mentorship and coaching" },
 ];
 
 type HeroSlide = {
@@ -151,21 +189,6 @@ const spaces = [
     description: "Relaxed seating for networking, peer support, and casual check-ins.",
     image: "/spaces/space-innovation-lounge.jpg",
     level: "Floor 2",
-  },
-];
-
-const steps = [
-  {
-    title: "Create your startup profile",
-    detail: "Share your company story, stage, and support interests.",
-  },
-  {
-    title: "Upload your pitch deck",
-    detail: "Provide a pitch deck so the team can review your vision.",
-  },
-  {
-    title: "Submit and get feedback",
-    detail: "Our admin team reviews and responds with next steps.",
   },
 ];
 
@@ -486,27 +509,50 @@ export default function HomePage() {
 
       <Reveal>
         <section id="about" className="mx-auto w-full max-w-6xl px-6 py-16">
-        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-greenDark">About InnoBiz-K</p>
-            <h2 className="text-3xl font-bold text-brand-ink">A place where each idea unfolds.</h2>
-            {officialDescription.map((paragraph) => (
-              <p className="text-base text-slate-600" key={paragraph.slice(0, 20)}>
-                {paragraph}
-              </p>
-            ))}
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {steps.map((step, index) => (
-              <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-panel" key={step.title}>
-                <p className="text-xs font-semibold uppercase text-brand-blue">Step 0{index + 1}</p>
-                <p className="mt-2 text-sm font-semibold text-brand-ink">{step.title}</p>
-                <p className="mt-1 text-sm text-slate-600">{step.detail}</p>
+          <div className="rounded-[32px] border border-white/70 bg-white/90 p-8 shadow-panel">
+            <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-greenDark">About InnoBiz-K</p>
+                  <h2 className="text-3xl font-bold text-brand-ink">A place where each idea unfolds.</h2>
+                  <p className="max-w-2xl text-base text-slate-600">
+                    InnoBiz-K Ethiopia helps ambitious founders move from early promise to stronger execution through
+                    incubation, infrastructure, and ecosystem collaboration.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  {aboutHighlights.map((item) => (
+                    <div className={`rounded-3xl border p-5 shadow-panel ${item.accent}`} key={item.title}>
+                      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-ink/80">{item.title}</p>
+                      <p className="mt-3 text-sm leading-6 text-slate-700">{item.description}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {aboutMetrics.map((item) => (
+                    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5" key={item.label}>
+                      <p className="text-2xl font-bold text-brand-ink">{item.value}</p>
+                      <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+
+              <div className="space-y-4">
+                {aboutStory.map((item, index) => (
+                  <div className="rounded-3xl border border-slate-100 bg-slate-50 p-5 shadow-panel" key={item.label}>
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-blue">
+                      0{index + 1} {item.label}
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
       </Reveal>
 
       <Reveal>
