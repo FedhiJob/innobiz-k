@@ -5,6 +5,7 @@ import { HeroMediaType } from "@prisma/client";
 import { prisma } from "../../config/prisma";
 import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
+import { getPublicBaseUrl } from "../../utils/public-url";
 import {
   createHeroUpdateSchema,
   heroUpdateQuerySchema,
@@ -34,7 +35,7 @@ const buildMediaUrl = (req: Request, fileName: string | null) => {
   if (!fileName) {
     return null;
   }
-  return `${req.protocol}://${req.get("host")}/uploads/hero-updates/${fileName}`;
+  return `${getPublicBaseUrl(req)}/uploads/hero-updates/${fileName}`;
 };
 
 const serializeHeroUpdate = (req: Request, update: {
