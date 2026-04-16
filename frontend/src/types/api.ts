@@ -189,6 +189,25 @@ export interface Notification {
   createdAt: string;
 }
 
+export interface OfficeSpace {
+  id: string;
+  name: string;
+  slug: string;
+  shortDescription: string;
+  fullDescription: string;
+  locationLabel: string | null;
+  capacity: number | null;
+  amenities: string[];
+  imageFileName: string | null;
+  imageFileSize: number | null;
+  imageMimeType: string | null;
+  imageUrl: string | null;
+  published: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type SpaceRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 export interface SpaceRequest {
@@ -197,6 +216,8 @@ export interface SpaceRequest {
   contactName: string;
   email: string;
   phone: string;
+  officeSpaceId: string | null;
+  officeSpaceName: string | null;
   teamSize: number | null;
   resourceTypes: string[];
   startDate: string;
@@ -208,6 +229,7 @@ export interface SpaceRequest {
   rejectionReason: string | null;
   reviewedAt: string | null;
   reviewedById: string | null;
+  officeSpace?: Pick<OfficeSpace, "id" | "name" | "slug"> | null;
   createdAt: string;
   updatedAt: string;
 }

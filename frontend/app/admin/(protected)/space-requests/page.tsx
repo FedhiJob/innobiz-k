@@ -166,7 +166,7 @@ export default function AdminSpaceRequestsPage() {
               <div>
                 <p className="text-sm font-semibold text-brand-ink">{request.startupName}</p>
                 <p className="text-xs text-slate-500">
-                  {request.contactName} • {request.email}
+                  {request.contactName} - {request.email}
                 </p>
                 <p className="mt-1 text-xs text-slate-500">Submitted {formatDateTime(request.createdAt)}</p>
               </div>
@@ -184,6 +184,10 @@ export default function AdminSpaceRequestsPage() {
             </div>
             <div className="mt-4 grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-2 text-sm text-slate-600">
+                <p>
+                  <span className="font-semibold text-slate-700">Preferred space:</span>{" "}
+                  {request.officeSpace?.name ?? request.officeSpaceName ?? "General request"}
+                </p>
                 <p>
                   <span className="font-semibold text-slate-700">Resources:</span>{" "}
                   {request.resourceTypes.join(", ")}
@@ -226,3 +230,5 @@ export default function AdminSpaceRequestsPage() {
     </div>
   );
 }
+
+

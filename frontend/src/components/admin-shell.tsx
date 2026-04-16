@@ -70,6 +70,16 @@ export const AdminShell = ({ children }: { children: React.ReactNode }) => {
                 </Link>
                 <Link
                   className={`whitespace-nowrap rounded-xl px-3 py-2 font-semibold ${
+                    isActive(pathname, "/admin/office-spaces")
+                      ? "bg-brand-blue text-white shadow-sm"
+                      : "text-white/85 hover:bg-white/10"
+                  }`}
+                  href="/admin/office-spaces"
+                >
+                  Office Spaces
+                </Link>
+                <Link
+                  className={`whitespace-nowrap rounded-xl px-3 py-2 font-semibold ${
                     isActive(pathname, "/admin/space-requests")
                       ? "bg-brand-blue text-white shadow-sm"
                       : "text-white/85 hover:bg-white/10"
@@ -132,6 +142,16 @@ export const AdminShell = ({ children }: { children: React.ReactNode }) => {
                   href="/admin/applications"
                 >
                   Applications
+                </Link>
+                <Link
+                  className={`rounded-2xl px-4 py-3 ${
+                    isActive(pathname, "/admin/office-spaces")
+                      ? "bg-brand-blue text-white"
+                      : "text-white/85 hover:bg-white/10"
+                  }`}
+                  href="/admin/office-spaces"
+                >
+                  Office Spaces
                 </Link>
                 <Link
                   className={`rounded-2xl px-4 py-3 ${

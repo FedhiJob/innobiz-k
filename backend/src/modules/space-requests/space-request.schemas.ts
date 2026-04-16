@@ -6,6 +6,7 @@ export const createSpaceRequestSchema = z.object({
   contactName: z.string().trim().min(2).max(120),
   email: z.string().trim().email(),
   phone: z.string().trim().min(7).max(30),
+  officeSpaceId: z.string().trim().uuid().optional(),
   teamSize: z.number().int().min(1).max(500).optional(),
   resourceTypes: z.array(z.string().trim().min(2)).min(1),
   startDate: z.string().trim().min(4),

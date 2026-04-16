@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { MobileMenuButton } from "@/components/mobile-menu-button";
 import { useAuth } from "@/context/auth-context";
 import { Reveal } from "@/components/reveal";
-import { updatesApi } from "@/lib/api";
-import type { HeroUpdate } from "@/types/api";
+import { officeSpaceApi, updatesApi } from "@/lib/api";
+import type { HeroUpdate, OfficeSpace } from "@/types/api";
 
 const impactMetrics = [
   { label: "Mentors & coaches", value: "25+" },
@@ -167,49 +167,11 @@ const testimonials = [
   },
 ];
 
-const spaces = [
-  {
-    name: "Open Collaboration Hub",
-    description: "Flexible desks, writable walls, and plenty of daylight for team sprints.",
-    image: "/spaces/space-open-collab.jpg",
-    level: "Floor 1",
-  },
-  {
-    name: "Quiet Focus Pods",
-    description: "Sound-reduced pods for deep work, research, and founder calls.",
-    image: "/spaces/space-focus-pod.jpg",
-    level: "Floor 1",
-  },
-  {
-    name: "Prototype Lab",
-    description: "Space to validate hardware ideas and assemble early prototypes.",
-    image: "/spaces/space-prototype-lab.jpg",
-    level: "Floor 2",
-  },
-  {
-    name: "Mentor Suite",
-    description: "Private meeting rooms for coaching sessions and investor reviews.",
-    image: "/spaces/space-mentor-suite.jpg",
-    level: "Floor 2",
-  },
-  {
-    name: "Community Event Hall",
-    description: "Launch events, demo days, and training workshops under one roof.",
-    image: "/spaces/space-event-hall.jpg",
-    level: "Floor 1",
-  },
-  {
-    name: "Innovation Lounge",
-    description: "Relaxed seating for networking, peer support, and casual check-ins.",
-    image: "/spaces/space-innovation-lounge.jpg",
-    level: "Floor 2",
-  },
-];
-
 export default function HomePage() {
   const { user, isLoading } = useAuth();
   const [heroIndex, setHeroIndex] = useState(0);
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(defaultHeroSlides);
+  const [officeSpaces, setOfficeSpaces] = useState<OfficeSpace[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const primaryCta =
     user && !isLoading
@@ -243,6 +205,19 @@ export default function HomePage() {
       }
     };
     void loadUpdates();
+  }, []);
+
+  useEffect(() => {
+    const loadOfficeSpaces = async () => {
+      try {
+        const response = await officeSpaceApi.list();
+        setOfficeSpaces(response);
+      } catch {
+        setOfficeSpaces([]);
+      }
+    };
+
+    void loadOfficeSpaces();
   }, []);
 
   useEffect(() => {
@@ -664,40 +639,72 @@ export default function HomePage() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-blue">Office Spaces</p>
           <h2 className="text-3xl font-bold text-brand-ink">A gallery of spaces built for focus and collaboration.</h2>
           <p className="text-base text-slate-600">
-            From quiet pods to event halls, our spaces are designed to support every stage of a startup journey.
+            Browse the current InnoBiz-K space catalog, open a room or workspace, and continue straight into the request flow.
           </p>
         </div>
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {spaces.map((space, index) => (
-            <div
-              className="group relative overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-5 shadow-panel transition hover:-translate-y-1"
-              key={space.name}
-            >
-              <div
-                className="mb-4 h-40 w-full rounded-2xl bg-gradient-to-br from-brand-green/20 via-white to-brand-blue/20"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, rgba(255,195,0,0.2), rgba(255,255,255,0.4), rgba(5,110,220,0.25)), url(${space.image})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              />
-              <p className="text-sm font-semibold text-brand-ink">{space.name}</p>
-              <p className="mt-1 text-sm text-slate-600">{space.description}</p>
-              <span className="mt-3 inline-flex w-fit rounded-full border border-white/80 bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-500">
-                {space.level}
-              </span>
-              <div
-                className={`pointer-events-none absolute -right-10 -top-10 h-20 w-20 rounded-full ${
-                  index % 3 === 0
-                    ? "bg-brand-yellow/30"
-                    : index % 3 === 1
-                      ? "bg-brand-green/30"
-                      : "bg-brand-blue/30"
-                } blur-2xl`}
-              />
-            </div>
-          ))}
-        </div>
+        {officeSpaces.length > 0 ? (
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {officeSpaces.slice(0, 6).map((space, index) => (
+              <Link
+                className="group relative overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-5 shadow-panel transition hover:-translate-y-1"
+                href={`/spaces/${space.slug}`}
+                key={space.id}
+              >
+                <div className="relative mb-4 h-44 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-green/20 via-white to-brand-blue/20">
+                  {space.imageUrl ? (
+                    <Image
+                      alt={space.name}
+                      className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 33vw"
+                      src={space.imageUrl}
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">
+                      InnoBiz-K
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm font-semibold text-brand-ink">{space.name}</p>
+                <p className="mt-1 text-sm text-slate-600">{space.shortDescription}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {space.locationLabel ? (
+                    <span className="inline-flex rounded-full border border-white/80 bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-500">
+                      {space.locationLabel}
+                    </span>
+                  ) : null}
+                  {space.capacity ? (
+                    <span className="inline-flex rounded-full border border-white/80 bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-500">
+                      Capacity {space.capacity}
+                    </span>
+                  ) : null}
+                </div>
+                <p className="mt-4 text-xs font-semibold uppercase tracking-[0.24em] text-brand-blue">
+                  View details
+                </p>
+                <div
+                  className={`pointer-events-none absolute -right-10 -top-10 h-20 w-20 rounded-full ${
+                    index % 3 === 0
+                      ? "bg-brand-yellow/30"
+                      : index % 3 === 1
+                        ? "bg-brand-green/30"
+                        : "bg-brand-blue/30"
+                  } blur-2xl`}
+                />
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-8 rounded-[32px] border border-dashed border-brand-blue/20 bg-white/80 p-8 text-center shadow-panel">
+            <h3 className="text-xl font-semibold text-brand-ink">The office space catalog is being curated.</h3>
+            <p className="mt-3 text-sm text-slate-600 sm:text-base">
+              Our admin team can now publish spaces here with current images, descriptions, and availability context.
+            </p>
+            <Link className="btn-primary mt-5 inline-flex" href="/space-request">
+              Apply for Space
+            </Link>
+          </div>
+        )}
       </section>
       </Reveal>
 
@@ -707,12 +714,12 @@ export default function HomePage() {
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-greenDark">Apply Now</p>
-              <h2 className="mt-2 text-3xl font-bold text-brand-ink">Ready to bring your startup to InnoBiz-K?</h2>
-              <p className="mt-3 text-base text-slate-600">
-                Create your application, select the support you need, and submit your pitch deck. Our team will guide
-                you through the rest.
-              </p>
-            </div>
+                <h2 className="mt-2 text-3xl font-bold text-brand-ink">Ready to bring your startup to InnoBiz-K?</h2>
+                <p className="mt-3 text-base text-slate-600">
+                  Create your application, select the support you need, and submit your startup profile for review. Our
+                  team will guide you through the rest.
+                </p>
+              </div>
             <div className="flex flex-col gap-3">
               <Link className="btn-primary w-full" href={primaryCta.href}>
                 {primaryCta.label}

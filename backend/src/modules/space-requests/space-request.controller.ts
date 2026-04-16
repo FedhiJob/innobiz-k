@@ -29,12 +29,25 @@ export const createSpaceRequest = async (req: Request, res: Response) => {
     throw new ApiError(400, "End date must be after the start date.");
   }
 
+  const requestedSpace = payload.officeSpaceId
+    ? await prisma.officeSpace.findUnique({
+        where: { id: payload.officeSpaceId },
+        select: { id: true, name: true, published: true },
+      })
+    : null;
+
+  if (payload.officeSpaceId && (!requestedSpace || !requestedSpace.published)) {
+    throw new ApiError(400, "Selected office space is no longer available.");
+  }
+
   const created = await prisma.spaceRequest.create({
     data: {
       startupName: payload.startupName,
       contactName: payload.contactName,
       email: payload.email,
       phone: payload.phone,
+      officeSpaceId: requestedSpace?.id ?? null,
+      officeSpaceName: requestedSpace?.name ?? null,
       teamSize: payload.teamSize ?? null,
       resourceTypes: payload.resourceTypes,
       startDate,
@@ -77,6 +90,15 @@ export const listSpaceRequestsAdmin = async (req: Request, res: Response) => {
     prisma.spaceRequest.count({ where }),
     prisma.spaceRequest.findMany({
       where,
+      include: {
+        officeSpace: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
       orderBy: {
         createdAt: "desc",
       },
@@ -105,6 +127,15 @@ export const getSpaceRequestAdmin = async (req: Request, res: Response) => {
 
   const spaceRequest = await prisma.spaceRequest.findUnique({
     where: { id: requestId },
+    include: {
+      officeSpace: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
+    },
   });
 
   if (!spaceRequest) {

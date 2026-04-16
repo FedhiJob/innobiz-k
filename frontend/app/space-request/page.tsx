@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { spaceRequestApi } from "@/lib/api";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { officeSpaceApi, spaceRequestApi } from "@/lib/api";
+import type { OfficeSpace } from "@/types/api";
 
 const resourceOptions = [
   "Open Incubation Space",
@@ -16,10 +18,15 @@ const resourceOptions = [
 ];
 
 export default function SpaceRequestPage() {
+  const searchParams = useSearchParams();
+  const requestedSpaceId = searchParams.get("spaceId") ?? "";
+  const requestedSpaceName = searchParams.get("spaceName") ?? "";
   const [startupName, setStartupName] = useState("");
   const [contactName, setContactName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [officeSpaces, setOfficeSpaces] = useState<OfficeSpace[]>([]);
+  const [selectedSpaceId, setSelectedSpaceId] = useState(requestedSpaceId);
   const [teamSize, setTeamSize] = useState("");
   const [resources, setResources] = useState<string[]>([]);
   const [startDate, setStartDate] = useState("");
@@ -29,6 +36,30 @@ export default function SpaceRequestPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadSpaces = async () => {
+      try {
+        const response = await officeSpaceApi.list();
+        setOfficeSpaces(response);
+      } catch {
+        setOfficeSpaces([]);
+      }
+    };
+
+    void loadSpaces();
+  }, []);
+
+  useEffect(() => {
+    if (requestedSpaceId) {
+      setSelectedSpaceId(requestedSpaceId);
+    }
+  }, [requestedSpaceId]);
+
+  const selectedSpace = useMemo(
+    () => officeSpaces.find((space) => space.id === selectedSpaceId) ?? null,
+    [officeSpaces, selectedSpaceId],
+  );
 
   const toggleResource = (value: string) => {
     setResources((current) =>
@@ -65,6 +96,7 @@ export default function SpaceRequestPage() {
         contactName: contactName.trim(),
         email: email.trim(),
         phone: phone.trim(),
+        officeSpaceId: selectedSpaceId || undefined,
         teamSize: teamSize ? Number(teamSize) : undefined,
         resourceTypes: resources,
         startDate,
@@ -76,6 +108,7 @@ export default function SpaceRequestPage() {
       setContactName("");
       setEmail("");
       setPhone("");
+      setSelectedSpaceId(requestedSpaceId);
       setTeamSize("");
       setResources([]);
       setStartDate("");
@@ -162,6 +195,65 @@ export default function SpaceRequestPage() {
                 onChange={(event) => setTeamSize(event.target.value)}
               />
             </div>
+          </div>
+
+          <div className="panel space-y-4 p-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-brand-ink">Preferred Office Space</h2>
+                <p className="text-sm text-slate-600">
+                  Select a catalog space if this request is for a specific room or workspace.
+                </p>
+              </div>
+              {selectedSpaceId ? (
+                <button className="btn-secondary px-4 py-2" onClick={() => setSelectedSpaceId("")} type="button">
+                  Clear selection
+                </button>
+              ) : null}
+            </div>
+
+            <select
+              className="input"
+              onChange={(event) => setSelectedSpaceId(event.target.value)}
+              value={selectedSpaceId}
+            >
+              <option value="">No specific space selected</option>
+              {officeSpaces.map((space) => (
+                <option key={space.id} value={space.id}>
+                  {space.name}
+                </option>
+              ))}
+            </select>
+
+            {selectedSpace ? (
+              <div className="rounded-3xl border border-brand-blue/15 bg-brand-blue/5 p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-brand-ink">{selectedSpace.name}</p>
+                    <p className="mt-2 text-sm leading-7 text-slate-600">{selectedSpace.shortDescription}</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {selectedSpace.locationLabel ? (
+                        <span className="rounded-full border border-brand-blue/15 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
+                          {selectedSpace.locationLabel}
+                        </span>
+                      ) : null}
+                      {selectedSpace.capacity ? (
+                        <span className="rounded-full border border-brand-blue/15 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
+                          Capacity {selectedSpace.capacity}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                  <Link className="btn-secondary w-full sm:w-auto" href={`/spaces/${selectedSpace.slug}`}>
+                    View Space Details
+                  </Link>
+                </div>
+              </div>
+            ) : requestedSpaceName && selectedSpaceId ? (
+              <div className="rounded-3xl border border-brand-blue/15 bg-brand-blue/5 p-5 text-sm text-slate-600">
+                Selected space: <span className="font-semibold text-brand-ink">{requestedSpaceName}</span>
+              </div>
+            ) : null}
           </div>
 
           <div className="panel space-y-4 p-6">

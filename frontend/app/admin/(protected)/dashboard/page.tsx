@@ -264,6 +264,9 @@ export default function AdminDashboardPage() {
           <button className="btn-secondary w-full sm:w-auto" onClick={handleOpenShare} type="button">
             Share Monthly Report
           </button>
+          <Link className="btn-secondary w-full sm:w-auto" href="/admin/office-spaces">
+            Manage Spaces
+          </Link>
           <Link className="btn-primary w-full sm:w-auto" href="/admin/applications?status=SUBMITTED">
             Open Review Queue
           </Link>

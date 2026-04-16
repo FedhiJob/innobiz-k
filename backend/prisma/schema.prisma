@@ -204,6 +204,27 @@ model HeroUpdate {
   @@index([createdAt])
 }
 
+model OfficeSpace {
+  id               String         @id @default(uuid())
+  name             String
+  slug             String         @unique
+  shortDescription String
+  fullDescription  String
+  locationLabel    String?
+  capacity         Int?
+  amenities        String[]       @default([])
+  imageFileName    String?
+  imageFileSize    Int?
+  imageMimeType    String?
+  published        Boolean        @default(true)
+  sortOrder        Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  spaceRequests    SpaceRequest[]
+
+  @@index([published, sortOrder, createdAt])
+}
+
 enum SpaceRequestStatus {
   PENDING
   APPROVED
@@ -216,6 +237,8 @@ model SpaceRequest {
   contactName     String
   email           String
   phone           String
+  officeSpaceId   String?
+  officeSpaceName String?
   teamSize        Int?
   resourceTypes   String[]
   startDate       DateTime
@@ -227,10 +250,12 @@ model SpaceRequest {
   rejectionReason String?
   reviewedAt      DateTime?
   reviewedById    String?
+  officeSpace     OfficeSpace?         @relation(fields: [officeSpaceId], references: [id], onDelete: SetNull)
   reviewedBy      User?              @relation("SpaceRequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
 
+  @@index([officeSpaceId])
   @@index([status, createdAt])
   @@index([email])
   @@index([createdAt])

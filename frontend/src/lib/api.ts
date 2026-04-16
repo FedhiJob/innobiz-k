@@ -14,6 +14,7 @@ import type {
   HeroUpdate,
   PaginatedSpaceRequests,
   SpaceRequest,
+  OfficeSpace,
 } from "@/types/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000/api";
@@ -371,6 +372,113 @@ export const adminApi = {
       token,
     }),
 
+  listOfficeSpaces: (token: string) =>
+    request<OfficeSpace[]>("/admin/office-spaces", {
+      method: "GET",
+      token,
+    }),
+
+  createOfficeSpace: (
+    token: string,
+    input: {
+      name: string;
+      shortDescription: string;
+      fullDescription: string;
+      locationLabel?: string;
+      capacity?: number;
+      amenities?: string[];
+      published?: boolean;
+      sortOrder?: number;
+      image?: File | null;
+    },
+  ) => {
+    const formData = new FormData();
+    formData.append("name", input.name);
+    formData.append("shortDescription", input.shortDescription);
+    formData.append("fullDescription", input.fullDescription);
+    if (input.locationLabel) {
+      formData.append("locationLabel", input.locationLabel);
+    }
+    if (input.capacity !== undefined) {
+      formData.append("capacity", String(input.capacity));
+    }
+    if (input.amenities) {
+      formData.append("amenities", JSON.stringify(input.amenities));
+    }
+    if (input.published !== undefined) {
+      formData.append("published", String(input.published));
+    }
+    if (input.sortOrder !== undefined) {
+      formData.append("sortOrder", String(input.sortOrder));
+    }
+    if (input.image) {
+      formData.append("image", input.image);
+    }
+
+    return request<OfficeSpace>("/admin/office-spaces", {
+      method: "POST",
+      token,
+      body: formData,
+    });
+  },
+
+  updateOfficeSpace: (
+    token: string,
+    id: string,
+    input: {
+      name?: string;
+      shortDescription?: string;
+      fullDescription?: string;
+      locationLabel?: string;
+      capacity?: number;
+      amenities?: string[];
+      published?: boolean;
+      sortOrder?: number;
+      image?: File | null;
+    },
+  ) => {
+    const formData = new FormData();
+    if (input.name !== undefined) {
+      formData.append("name", input.name);
+    }
+    if (input.shortDescription !== undefined) {
+      formData.append("shortDescription", input.shortDescription);
+    }
+    if (input.fullDescription !== undefined) {
+      formData.append("fullDescription", input.fullDescription);
+    }
+    if (input.locationLabel !== undefined) {
+      formData.append("locationLabel", input.locationLabel);
+    }
+    if (input.capacity !== undefined) {
+      formData.append("capacity", String(input.capacity));
+    }
+    if (input.amenities !== undefined) {
+      formData.append("amenities", JSON.stringify(input.amenities));
+    }
+    if (input.published !== undefined) {
+      formData.append("published", String(input.published));
+    }
+    if (input.sortOrder !== undefined) {
+      formData.append("sortOrder", String(input.sortOrder));
+    }
+    if (input.image) {
+      formData.append("image", input.image);
+    }
+
+    return request<OfficeSpace>(`/admin/office-spaces/${id}`, {
+      method: "PATCH",
+      token,
+      body: formData,
+    });
+  },
+
+  deleteOfficeSpace: (token: string, id: string) =>
+    request<null>(`/admin/office-spaces/${id}`, {
+      method: "DELETE",
+      token,
+    }),
+
   listSpaceRequests: (
     token: string,
     options?: { page?: number; pageSize?: number; status?: string; search?: string },
@@ -448,12 +556,25 @@ export const updatesApi = {
     }),
 };
 
+export const officeSpaceApi = {
+  list: () =>
+    request<OfficeSpace[]>("/office-spaces", {
+      method: "GET",
+    }),
+
+  getBySlug: (slug: string) =>
+    request<OfficeSpace>(`/office-spaces/${slug}`, {
+      method: "GET",
+    }),
+};
+
 export const spaceRequestApi = {
   create: (input: {
     startupName: string;
     contactName: string;
     email: string;
     phone: string;
+    officeSpaceId?: string;
     teamSize?: number;
     resourceTypes: string[];
     startDate: string;
