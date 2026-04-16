@@ -6,6 +6,7 @@ import { prisma } from "../../config/prisma";
 import { env } from "../../config/env";
 import { ApiError } from "../../utils/api-error";
 import { sendSuccess } from "../../utils/api-response";
+import { getPublicBaseUrl } from "../../utils/public-url";
 import { sendAndLogEmail } from "../../services/email.service";
 import {
   buildMonthlyReportData,
@@ -34,7 +35,7 @@ const buildFileName = (format: string, rangeLabel: string) => {
 };
 
 const getShareUrl = (req: Request, token: string) => {
-  return `${req.protocol}://${req.get("host")}/api/reports/share/${token}`;
+  return `${getPublicBaseUrl(req)}/api/reports/share/${token}`;
 };
 
 const generateReportFile = async (token: string, format: string, rangeLabel: string) => {
