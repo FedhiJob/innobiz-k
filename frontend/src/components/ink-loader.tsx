@@ -23,7 +23,7 @@ export const InkLoader = ({ message = "Loading...", size = "md", className = "" 
     <div className={`ink-loader ${className}`.trim()}>
       <div className="ink-loader-card">
         <Image
-          alt="InnoBiz-K Ethiopia"
+          alt="innobiz-k Ethiopia"
           className={`ink-logo-image ${sizeClass[size]}`}
           src="/ink-logo.png"
           width={sizeProps[size].width}

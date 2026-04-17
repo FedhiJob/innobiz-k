@@ -33,7 +33,7 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
             <Link className="flex min-w-0 items-center gap-3" href="/">
               <div className="shrink-0">
                 <Image
-                  alt="InnoBiz-K Ethiopia"
+                  alt="innobiz-k Ethiopia"
                   className="h-10 w-auto"
                   src="/ink-logo.png"
                   width={120}
@@ -42,7 +42,7 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
                 />
               </div>
               <div className="min-w-0">
-                <h1 className="truncate text-lg font-extrabold tracking-tight text-brand-ink">InnoBiz-K Ethiopia</h1>
+                <h1 className="truncate text-lg font-extrabold tracking-tight text-brand-ink">innobiz-k Ethiopia</h1>
                 <p className="truncate text-xs text-slate-500">Incubation Application Portal</p>
               </div>
             </Link>

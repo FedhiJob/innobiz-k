@@ -127,9 +127,9 @@ export default function SpaceRequestPage() {
     <main className="min-h-screen px-6 py-10 text-brand-ink">
       <header className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-4">
         <Link className="flex items-center gap-3" href="/">
-          <Image src="/ink-logo.png" alt="InnoBiz-K logo" width={56} height={40} />
+          <Image src="/ink-logo.png" alt="innobiz-k logo" width={56} height={40} />
           <div>
-            <p className="text-base font-semibold text-brand-ink">InnoBiz-K Ethiopia</p>
+            <p className="text-base font-semibold text-brand-ink">innobiz-k Ethiopia</p>
             <p className="text-xs text-slate-500">Space & Resource Request</p>
           </div>
         </Link>
@@ -328,7 +328,7 @@ export default function SpaceRequestPage() {
               <li>Requested resources will be used only for startup-related activities.</li>
               <li>The startup is responsible for any damage or loss during usage.</li>
               <li>All equipment and facilities must be returned in good condition.</li>
-              <li>Applicants agree to follow InnoBiz-K Ethiopia policies and regulations.</li>
+              <li>Applicants agree to follow innobiz-k Ethiopia policies and regulations.</li>
             </ul>
           </div>
 

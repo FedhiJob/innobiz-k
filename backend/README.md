@@ -1,6 +1,6 @@
 # Innobiz-K Backend
 
-Backend API for the InnoBiz-K Ethiopia incubation application system.
+Backend API for the innobiz-k Ethiopia incubation application system.
 
 ## Project Structure
 

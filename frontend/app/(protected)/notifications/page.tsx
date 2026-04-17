@@ -23,7 +23,7 @@ export default function NotificationSettingsPage() {
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6">
       <div className="flex items-start gap-3 sm:items-center">
-        <img alt="InnoBiz-K Ethiopia" className="h-10 w-auto" src="/ink-logo.png" />
+        <img alt="innobiz-k Ethiopia" className="h-10 w-auto" src="/ink-logo.png" />
         <div className="min-w-0">
           <h2 className="text-2xl font-bold text-brand-ink">Notification Settings</h2>
           <p className="text-sm text-slate-600">Choose how you want to receive updates.</p>

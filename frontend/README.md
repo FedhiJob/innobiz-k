@@ -1,4 +1,4 @@
-# InnoBiz-K Frontend (Next.js)
+# innobiz-k Frontend (Next.js)
 
 This frontend is built with Next.js App Router + Tailwind CSS and is wired to the backend APIs under `/api`.
 

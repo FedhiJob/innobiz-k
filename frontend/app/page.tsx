@@ -60,7 +60,7 @@ const aboutHighlights = [
 
 const aboutStory = [
   {
-    label: "What InnoBiz-K is",
+    label: "What innobiz-k is",
     description:
       "A bilateral initiative between Ethiopia's Ministry of Innovation and Technology and KOICA, built to strengthen the ICT startup and SME ecosystem.",
   },
@@ -149,7 +149,7 @@ const partnerLogos = [
 const testimonials = [
   {
     quote:
-      "InnoBiz-K helped us validate our product and connect with mentors who actually understand our market.",
+      "innobiz-k helped us validate our product and connect with mentors who actually understand our market.",
     name: "Startup Founder",
     role: "FinTech Cohort",
   },
@@ -235,9 +235,9 @@ export default function HomePage() {
         <header className="relative z-10 mx-auto w-full max-w-6xl px-6 py-6">
           <div className="flex items-center justify-between gap-4">
             <Link className="flex min-w-0 items-center gap-3" href="/">
-              <Image src="/ink-logo.png" alt="InnoBiz-K logo" width={56} height={40} />
+              <Image src="/ink-logo.png" alt="innobiz-k logo" width={56} height={40} />
               <div className="min-w-0">
-                <p className="truncate text-base font-semibold text-brand-ink">InnoBiz-K Ethiopia</p>
+                <p className="truncate text-base font-semibold text-brand-ink">innobiz-k Ethiopia</p>
                 <p className="truncate text-xs text-slate-500">Incubation Application Portal</p>
               </div>
             </Link>
@@ -322,7 +322,7 @@ export default function HomePage() {
               A launchpad for bold founders to build, learn, and scale.
             </h1>
             <p className="text-base text-slate-600 sm:text-lg">
-              InnoBiz-K supports ambitious Ethiopian startups with mentorship, community, and the resources to turn
+              innobiz-k supports ambitious Ethiopian startups with mentorship, community, and the resources to turn
               promising ideas into sustainable ventures.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -457,7 +457,7 @@ export default function HomePage() {
                   Momentum built through guidance, space, and ecosystem trust.
                 </h2>
                 <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">
-                  InnoBiz-K combines workspace, mentorship, and structured founder support so teams can stay focused on
+                  innobiz-k combines workspace, mentorship, and structured founder support so teams can stay focused on
                   progress instead of navigating alone.
                 </p>
               </div>
@@ -535,7 +535,7 @@ export default function HomePage() {
           <div className="rounded-[32px] border border-brand-yellow/20 bg-white/90 p-8 shadow-panel">
             <div className="flex flex-col gap-3">
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-yellow">Testimonials</p>
-              <h2 className="text-3xl font-bold text-brand-ink">Founders talking about the InnoBiz-K experience.</h2>
+              <h2 className="text-3xl font-bold text-brand-ink">Founders talking about the innobiz-k experience.</h2>
               <p className="text-base text-slate-600">
                 Real feedback from teams who built inside the incubation program.
               </p>
@@ -561,10 +561,10 @@ export default function HomePage() {
             <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-greenDark">About InnoBiz-K</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-greenDark">About innobiz-k</p>
                   <h2 className="text-3xl font-bold text-brand-ink">A place where each idea unfolds.</h2>
                   <p className="max-w-2xl text-base text-slate-600">
-                    InnoBiz-K Ethiopia helps ambitious founders move from early promise to stronger execution through
+                    innobiz-k Ethiopia helps ambitious founders move from early promise to stronger execution through
                     incubation, infrastructure, and ecosystem collaboration.
                   </p>
                 </div>
@@ -639,7 +639,7 @@ export default function HomePage() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-blue">Office Spaces</p>
           <h2 className="text-3xl font-bold text-brand-ink">A gallery of spaces built for focus and collaboration.</h2>
           <p className="text-base text-slate-600">
-            Browse the current InnoBiz-K space catalog, open a room or workspace, and continue straight into the request flow.
+            Browse the current innobiz-k space catalog, open a room or workspace, and continue straight into the request flow.
           </p>
         </div>
         {officeSpaces.length > 0 ? (
@@ -661,7 +661,7 @@ export default function HomePage() {
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">
-                      InnoBiz-K
+                      innobiz-k
                     </div>
                   )}
                 </div>
@@ -714,7 +714,7 @@ export default function HomePage() {
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-greenDark">Apply Now</p>
-                <h2 className="mt-2 text-3xl font-bold text-brand-ink">Ready to bring your startup to InnoBiz-K?</h2>
+                <h2 className="mt-2 text-3xl font-bold text-brand-ink">Ready to bring your startup to innobiz-k?</h2>
                 <p className="mt-3 text-base text-slate-600">
                   Create your application, select the support you need, and submit your startup profile for review. Our
                   team will guide you through the rest.
@@ -763,7 +763,7 @@ export default function HomePage() {
 
       <footer className="border-t border-white/70 bg-white/80">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-8 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
-          <p>InnoBiz-K Ethiopia. Empowering founders across Ethiopia.</p>
+          <p>innobiz-k Ethiopia. Empowering founders across Ethiopia.</p>
           <div className="flex flex-wrap gap-4">
             <a className="transition hover:text-brand-blue" href="#about">
               About

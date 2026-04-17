@@ -90,7 +90,7 @@ export default function OfficeSpaceDetailPage() {
               <Image alt={space.name} className="object-cover" fill priority sizes="100vw" src={space.imageUrl} />
             ) : (
               <div className="flex h-full items-center justify-center text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">
-                InnoBiz-K Office Space
+                innobiz-k Office Space
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-brand-ink/65 via-brand-ink/10 to-transparent" />

@@ -26,7 +26,7 @@ export const LoginPageClient = () => {
     <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4 py-10">
       <div className="panel w-full max-w-md p-6">
         <div className="flex justify-center">
-          <img alt="InnoBiz-K Ethiopia" className="h-12 w-auto" src="/ink-logo.png" />
+          <img alt="innobiz-k Ethiopia" className="h-12 w-auto" src="/ink-logo.png" />
         </div>
         <h1 className="text-2xl font-bold text-brand-slate">Startup Login</h1>
         <p className="mt-1 text-sm text-slate-600">Access your dashboard and application drafts.</p>

@@ -31,10 +31,10 @@ export const AdminShell = ({ children }: { children: React.ReactNode }) => {
           <div className="flex items-center justify-between gap-3">
             <Link className="flex min-w-0 items-center gap-3" href="/">
               <div className="rounded-2xl bg-white/90 p-2">
-                <img alt="InnoBiz-K Ethiopia" className="h-8 w-auto" src="/ink-logo.png" />
+                <img alt="innobiz-k Ethiopia" className="h-8 w-auto" src="/ink-logo.png" />
               </div>
               <div className="min-w-0">
-                <h1 className="truncate text-lg font-extrabold tracking-tight">InnoBiz-K Admin</h1>
+                <h1 className="truncate text-lg font-extrabold tracking-tight">innobiz-k Admin</h1>
                 <p className="truncate text-xs text-white/70">Application Review Console</p>
               </div>
             </Link>

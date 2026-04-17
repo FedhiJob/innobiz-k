@@ -145,7 +145,7 @@ export const buildMonthlyReportData = async (range: MonthlyReportRange): Promise
 
 export const renderTextReport = (data: MonthlyReportData) => {
   const lines = [
-    "InnoBiz-K Monthly Report",
+    "innobiz-k Monthly Report",
     `Period: ${data.rangeLabel}`,
     `Generated: ${formatDateTime(data.generatedAt)}`,
     "",
@@ -215,7 +215,7 @@ export const writePdfReport = async (data: MonthlyReportData, filePath: string) 
     const stream = fs.createWriteStream(filePath);
     doc.pipe(stream);
 
-    doc.fontSize(20).text("InnoBiz-K Monthly Report");
+    doc.fontSize(20).text("innobiz-k Monthly Report");
     doc.moveDown(0.5);
     doc.fontSize(12).text(`Period: ${data.rangeLabel}`);
     doc.text(`Generated: ${formatDateTime(data.generatedAt)}`);
@@ -322,7 +322,7 @@ export const writeDocxReport = async (data: MonthlyReportData, filePath: string)
       {
         children: [
           new Paragraph({
-            text: "InnoBiz-K Monthly Report",
+            text: "innobiz-k Monthly Report",
             heading: HeadingLevel.TITLE,
           }),
           new Paragraph(`Period: ${data.rangeLabel}`),

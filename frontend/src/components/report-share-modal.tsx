@@ -18,7 +18,7 @@ type ReportShareModalProps = {
 };
 
 const buildShareMessage = (shareUrl: string) =>
-  `InnoBiz-K monthly report: ${shareUrl}?format=pdf`;
+  `innobiz-k monthly report: ${shareUrl}?format=pdf`;
 
 export function ReportShareModal({
   open,
@@ -137,13 +137,13 @@ export function ReportShareModal({
           color: "bg-sky-500",
           href: `https://t.me/share/url?url=${encodeURIComponent(
             `${shareUrl}?format=pdf`,
-          )}&text=${encodeURIComponent("InnoBiz-K monthly report")}`,
+          )}&text=${encodeURIComponent("innobiz-k monthly report")}`,
         },
         {
           label: "Email",
           color: "bg-slate-500",
           href: `mailto:?subject=${encodeURIComponent(
-            "InnoBiz-K monthly report",
+            "innobiz-k monthly report",
           )}&body=${encodeURIComponent(shareMessage)}`,
         },
         {
