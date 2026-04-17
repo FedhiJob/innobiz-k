@@ -174,19 +174,80 @@ const footerLinks = [
   { label: "Apply", href: "#apply" },
 ];
 
-const footerActions = [
-  { label: "Start Application", href: "/register" },
-  { label: "Request Space", href: "/space-request" },
-  { label: "Log In", href: "/login" },
-  { label: "Admin Login", href: "/admin/login" },
+const footerContacts = [
+  { label: "Email", value: "admin@innobizk.et", href: "mailto:admin@innobizk.et", icon: "mail" },
+  { label: "Phone", value: "+251 (0)91 377 8100", href: "tel:+251913778100", icon: "phone" },
+  { label: "Fax", value: "+251 (0)11 000 0000", href: "#", icon: "fax" },
+  { label: "Location", value: "Addis Ababa, Ethiopia", href: "#", icon: "map" },
 ];
 
 const socialContacts = [
-  { label: "Facebook", short: "Fb", href: "https://facebook.com/innobizk" },
-  { label: "Telegram", short: "Te", href: "https://t.me/innobizk" },
-  { label: "LinkedIn", short: "Li", href: "https://linkedin.com/company/innobiz-k" },
-  { label: "YouTube", short: "Yt", href: "https://youtube.com/@innobizk" },
+  { label: "Facebook", href: "https://facebook.com/innobizk", icon: "facebook" },
+  { label: "Telegram", href: "https://t.me/innobizk", icon: "telegram" },
+  { label: "LinkedIn", href: "https://linkedin.com/company/innobiz-k", icon: "linkedin" },
+  { label: "YouTube", href: "https://youtube.com/@innobizk", icon: "youtube" },
 ];
+
+function FooterGlyph({ icon }: { icon: string }) {
+  const className = "h-4 w-4";
+
+  switch (icon) {
+    case "mail":
+      return (
+        <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
+          <path d="M4 6h16v12H4z" stroke="currentColor" strokeWidth="1.8" />
+          <path d="m5 7 7 6 7-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+        </svg>
+      );
+    case "phone":
+      return (
+        <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
+          <path d="M7.5 4.5h2l1.2 3.4-1.6 1.6a15.2 15.2 0 0 0 5.4 5.4l1.6-1.6 3.4 1.2v2a1.5 1.5 0 0 1-1.5 1.5A14.5 14.5 0 0 1 4.5 6a1.5 1.5 0 0 1 1.5-1.5Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+        </svg>
+      );
+    case "fax":
+      return (
+        <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
+          <path d="M7 8V4h10v4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+          <path d="M5 10h14v8H5z" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M8 14h4M8 17h6" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
+        </svg>
+      );
+    case "map":
+      return (
+        <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
+          <path d="M12 21s6-5.6 6-11a6 6 0 1 0-12 0c0 5.4 6 11 6 11Z" stroke="currentColor" strokeWidth="1.8" />
+          <circle cx="12" cy="10" r="2.2" stroke="currentColor" strokeWidth="1.8" />
+        </svg>
+      );
+    case "facebook":
+      return (
+        <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.2-1.6 1.5-1.6H16V4.8c-.2 0-.9-.1-1.9-.1-2.6 0-4.1 1.6-4.1 4.4V11H7.5v3H10v7h3.5Z" />
+        </svg>
+      );
+    case "telegram":
+      return (
+        <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 24 24">
+          <path d="m19.5 5.2-2.3 13.1c-.2.9-.7 1.1-1.4.7l-4.2-3.1-2 1.9c-.2.2-.4.4-.8.4l.3-4.4 8-7.2c.3-.3-.1-.5-.5-.2l-9.9 6.2-4.2-1.3c-.9-.3-.9-.9.2-1.3l16.3-6.3c.7-.3 1.4.2 1.1 1.5Z" />
+        </svg>
+      );
+    case "linkedin":
+      return (
+        <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M6.2 8.2a1.8 1.8 0 1 1 0-3.6 1.8 1.8 0 0 1 0 3.6ZM4.7 9.8h3V19h-3zm4.9 0h2.9v1.3h.1c.4-.7 1.4-1.6 3-1.6 3.2 0 3.8 2.1 3.8 4.8V19h-3v-4.1c0-1 0-2.2-1.4-2.2s-1.6 1-1.6 2.1V19h-3z" />
+        </svg>
+      );
+    case "youtube":
+      return (
+        <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M21.1 7.2a2.8 2.8 0 0 0-2-2A30.5 30.5 0 0 0 12 4.7a30.5 30.5 0 0 0-7.1.5 2.8 2.8 0 0 0-2 2A29.8 29.8 0 0 0 2.5 12c0 1.6.1 3.2.4 4.8a2.8 2.8 0 0 0 2 2 30.5 30.5 0 0 0 7.1.5 30.5 30.5 0 0 0 7.1-.5 2.8 2.8 0 0 0 2-2c.3-1.6.4-3.2.4-4.8 0-1.6-.1-3.2-.4-4.8ZM10 15.5v-7l6 3.5-6 3.5Z" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
 
 export default function HomePage() {
   const { user, isLoading } = useAuth();
@@ -783,102 +844,77 @@ export default function HomePage() {
       </Reveal>
 
       <footer className="border-t border-white/10 bg-brand-ink text-white">
-        <div className="mx-auto w-full max-w-6xl px-6 py-14">
-          <div className="grid gap-10 rounded-[36px] border border-white/10 bg-white/5 p-8 shadow-panel backdrop-blur-sm lg:grid-cols-[1.2fr_0.8fr_0.8fr_0.9fr]">
-            <div className="space-y-6">
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="rounded-3xl bg-white/95 px-4 py-3">
-                  <Image alt="innobiz-k Ethiopia" height={52} src="/ink-logo.png" width={92} />
-                </div>
-                <div className="rounded-3xl bg-white/95 px-4 py-3">
-                  <Image alt="Ministry of Innovation and Technology" height={52} src="/ink-collabs/mint.png" width={112} />
-                </div>
-              </div>
-
-              <div>
-                <p className="text-lg font-semibold text-white">innobiz-k Ethiopia</p>
-                <p className="mt-2 max-w-md text-sm leading-7 text-white/70">
-                  A startup incubation and workspace platform connecting founders with programs, facilities, and structured support across Ethiopia.
-                </p>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <a
-                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-white/20 hover:bg-white/10"
-                  href="mailto:admin@innobizk.et"
-                >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/45">Email</p>
-                  <p className="mt-2 text-sm font-medium text-white/85">admin@innobizk.et</p>
-                </a>
-                <a
-                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-white/20 hover:bg-white/10"
-                  href="tel:+251913778100"
-                >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/45">Phone</p>
-                  <p className="mt-2 text-sm font-medium text-white/85">+251 (0)91 377 8100</p>
-                </a>
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/45">Location</p>
-                  <p className="mt-2 text-sm font-medium text-white/85">Addis Ababa, Ethiopia</p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/45">Fax</p>
-                  <p className="mt-2 text-sm font-medium text-white/85">Administrative desk</p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/55">Portal</p>
-              <div className="mt-5 flex flex-col gap-3 text-sm text-white/75">
-                {footerLinks.map((item) => (
-                  <a className="transition hover:text-white" href={item.href} key={item.label}>
-                    {item.label}
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/55">Actions</p>
-              <div className="mt-5 flex flex-col gap-3 text-sm text-white/75">
-                {footerActions.map((item) => (
-                  <Link className="transition hover:text-white" href={item.href} key={item.label}>
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/55">Stay Connected</p>
-              <p className="mt-4 text-sm leading-7 text-white/70">
-                Follow announcements, founder stories, and program updates through innobiz-k communication channels.
-              </p>
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                {socialContacts.map((item) => (
-                  <a
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-white/20 hover:bg-white/10"
-                    href={item.href}
-                    key={item.label}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-xs font-semibold text-brand-ink">
-                        {item.short}
-                      </span>
-                      <span className="text-sm font-medium text-white/85">{item.label}</span>
+        <div className="mx-auto w-full max-w-6xl px-6 py-10">
+          <div className="rounded-[32px] border border-white/10 bg-white/5 p-6 shadow-panel backdrop-blur-sm sm:p-8">
+            <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="rounded-2xl bg-white px-3 py-2">
+                      <Image alt="innobiz-k Ethiopia" height={44} src="/ink-logo.png" width={84} />
                     </div>
-                  </a>
-                ))}
+                    <div className="h-8 w-px bg-white/10" />
+                    <div className="rounded-2xl bg-white px-3 py-2">
+                      <Image alt="Ministry of Innovation and Technology" height={44} src="/ink-collabs/mint.png" width={96} />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-base font-semibold text-white">innobiz-k Ethiopia</p>
+                    <p className="mt-1 max-w-xl text-sm leading-7 text-white/65">
+                      Startup incubation, office space access, and founder support in one focused digital platform.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm font-medium text-white/70">
+                  {footerLinks.map((item) => (
+                    <a className="transition hover:text-white" href={item.href} key={item.label}>
+                      {item.label}
+                    </a>
+                  ))}
+                  <Link className="transition hover:text-white" href="/space-request">
+                    Request Space
+                  </Link>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-5 border-t border-white/10 pt-5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-wrap gap-3">
+                  {footerContacts.map((item) => (
+                    <a
+                      className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/75 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+                      href={item.href}
+                      key={item.label}
+                    >
+                      <span className="text-brand-yellow">
+                        <FooterGlyph icon={item.icon} />
+                      </span>
+                      <span>{item.value}</span>
+                    </a>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {socialContacts.map((item) => (
+                    <a
+                      aria-label={item.label}
+                      className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+                      href={item.href}
+                      key={item.label}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      <FooterGlyph icon={item.icon} />
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
+                <p>innobiz-k Ethiopia. Digital workflows for applications, space requests, and monthly reporting.</p>
+                <p>Sample contact links in place for now.</p>
               </div>
             </div>
-          </div>
-
-          <div className="mt-6 flex flex-col gap-3 border-t border-white/10 pt-5 text-xs text-white/50 sm:flex-row sm:items-center sm:justify-between">
-            <p>innobiz-k Ethiopia. Built for startup applications, space requests, and incubation workflows.</p>
-            <p>Powered with institutional support from MInT and innobiz-k ecosystem partners.</p>
           </div>
         </div>
       </footer>
