@@ -28,9 +28,9 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6">
-      <div className="flex items-center gap-3">
+      <div className="flex items-start gap-3 sm:items-center">
         <img alt="InnoBiz-K Ethiopia" className="h-10 w-auto" src="/ink-logo.png" />
-        <div>
+        <div className="min-w-0">
           <h2 className="text-2xl font-bold text-brand-slate">Profile</h2>
           <p className="text-sm text-slate-600">Update your account information.</p>
         </div>
@@ -56,7 +56,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="panel p-6">
+      <div className="panel p-5 sm:p-6">
         <form
           className="space-y-4"
           onSubmit={async (event) => {
@@ -110,13 +110,13 @@ export default function ProfilePage() {
             />
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50/80 p-4 sm:p-5">
             <p className="text-sm font-semibold text-brand-ink">Notification preferences</p>
             <p className="mt-1 text-xs text-slate-500">
               Control how you receive updates about your applications and reports.
             </p>
             <div className="mt-4 space-y-3">
-              <label className="flex items-center justify-between gap-3">
+              <label className="flex flex-col items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-sm text-slate-700">In-app notifications</span>
                 <input
                   checked={notifyInApp}
@@ -125,7 +125,7 @@ export default function ProfilePage() {
                   type="checkbox"
                 />
               </label>
-              <label className="flex items-center justify-between gap-3">
+              <label className="flex flex-col items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-sm text-slate-700">Email notifications</span>
                 <input
                   checked={notifyByEmail}

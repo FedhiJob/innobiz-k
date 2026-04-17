@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import QRCode from "qrcode";
 
 type ReportShareModalProps = {
@@ -34,8 +35,13 @@ export function ReportShareModal({
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [recipients, setRecipients] = useState("");
   const [copyStatus, setCopyStatus] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const shareMessage = useMemo(() => (shareUrl ? buildShareMessage(shareUrl) : ""), [shareUrl]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!shareUrl) {
@@ -48,7 +54,53 @@ export function ReportShareModal({
       .catch(() => setQrDataUrl(null));
   }, [shareUrl]);
 
-  if (!open) {
+  useEffect(() => {
+    if (!open || !mounted) return;
+
+    const { body, documentElement } = document;
+    const scrollY = window.scrollY;
+    const previousBodyOverflow = body.style.overflow;
+    const previousBodyPosition = body.style.position;
+    const previousBodyTop = body.style.top;
+    const previousBodyLeft = body.style.left;
+    const previousBodyRight = body.style.right;
+    const previousBodyWidth = body.style.width;
+    const previousHtmlOverflow = documentElement.style.overflow;
+
+    documentElement.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+
+    return () => {
+      documentElement.style.overflow = previousHtmlOverflow;
+      body.style.overflow = previousBodyOverflow;
+      body.style.position = previousBodyPosition;
+      body.style.top = previousBodyTop;
+      body.style.left = previousBodyLeft;
+      body.style.right = previousBodyRight;
+      body.style.width = previousBodyWidth;
+      window.scrollTo(0, scrollY);
+    };
+  }, [mounted, open]);
+
+  useEffect(() => {
+    if (!open || !mounted) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [mounted, onClose, open]);
+
+  if (!open || !mounted) {
     return null;
   }
 
@@ -107,9 +159,16 @@ export function ReportShareModal({
       ]
     : [];
 
-  return (
-    <div className="fixed inset-0 z-[140] flex items-start justify-center overflow-y-auto bg-slate-900/50 px-4 py-20 md:items-center md:py-6">
-      <div className="w-full max-w-2xl max-h-[calc(100vh-2rem)] overflow-y-auto rounded-3xl border border-white/70 bg-white/95 p-6 shadow-panel backdrop-blur-sm md:max-h-[90vh]">
+  return createPortal(
+    <div aria-modal="true" className="fixed inset-0 z-[220]" role="dialog">
+      <button
+        aria-label="Close share dialog"
+        className="absolute inset-0 bg-slate-950/55 backdrop-blur-[3px]"
+        onClick={onClose}
+        type="button"
+      />
+      <div className="relative flex min-h-full items-start justify-center overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-6 md:items-center">
+        <div className="relative z-[221] w-full max-w-2xl max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-3xl border border-white/80 bg-white/95 p-6 shadow-panel backdrop-blur-sm md:max-h-[calc(100dvh-3rem)]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h3 className="text-xl font-semibold text-brand-ink">Share monthly report</h3>
@@ -257,6 +316,8 @@ export function ReportShareModal({
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </div>,
+    document.body,
   );
 }
