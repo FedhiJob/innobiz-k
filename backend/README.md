@@ -63,8 +63,15 @@ npm run dev
 
 1. Configure a database for tests.
    Use `TEST_DATABASE_URL` in `.env` if you want tests to use a separate database.
+   If you are using Neon, set `DIRECT_DATABASE_URL` to the non-pooled direct connection and the test suite will use it automatically when `TEST_DATABASE_URL` is not set.
 2. Run tests:
 
 ```bash
 npm test
 ```
+
+## Prisma and Neon
+
+- Use `DATABASE_URL` for the application runtime connection.
+- Use `DIRECT_DATABASE_URL` for Prisma migrations and integration tests.
+- This avoids flaky pooled-connection behavior during long-running test or migration sessions.

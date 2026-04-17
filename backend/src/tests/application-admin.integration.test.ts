@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import os from "os";
 import path from "path";
 import request from "supertest";
 import { EmailTemplateType } from "@prisma/client";
@@ -6,9 +7,10 @@ import app from "../app";
 import { prisma } from "../config/prisma";
 import { cleanupTestData, createAdminUser, uniqueEmail } from "./helpers";
 
-const fixturePath = path.resolve(process.cwd(), "src/tests/fixtures/pitch-deck.pdf");
-const invalidFixturePath = path.resolve(process.cwd(), "src/tests/fixtures/invalid.txt");
-const largeFixturePath = path.resolve(process.cwd(), "src/tests/fixtures/large-pitch-deck.pdf");
+let fixtureDir = "";
+let fixturePath = "";
+let invalidFixturePath = "";
+let largeFixturePath = "";
 
 const createDraftPayload = (email: string) => ({
   companyName: "InnoBiz Test Company",
@@ -29,7 +31,10 @@ const createDraftPayload = (email: string) => ({
 
 describe("Application + Admin flow", () => {
   beforeAll(async () => {
-    await fs.mkdir(path.dirname(fixturePath), { recursive: true });
+    fixtureDir = await fs.mkdtemp(path.join(os.tmpdir(), "innobiz-k-tests-"));
+    fixturePath = path.join(fixtureDir, "pitch-deck.pdf");
+    invalidFixturePath = path.join(fixtureDir, "invalid.txt");
+    largeFixturePath = path.join(fixtureDir, "large-pitch-deck.pdf");
     await fs.writeFile(fixturePath, "integration test pitch deck");
     await fs.writeFile(invalidFixturePath, "not a valid pitch deck");
     const largeBuffer = Buffer.alloc(10 * 1024 * 1024 + 1, "a");
@@ -43,9 +48,9 @@ describe("Application + Admin flow", () => {
   afterAll(async () => {
     await cleanupTestData();
     try {
-      await fs.unlink(fixturePath);
-      await fs.unlink(invalidFixturePath);
-      await fs.unlink(largeFixturePath);
+      if (fixtureDir) {
+        await fs.rm(fixtureDir, { recursive: true, force: true });
+      }
     } catch {
       // no-op
     }
