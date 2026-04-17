@@ -167,6 +167,27 @@ const testimonials = [
   },
 ];
 
+const footerLinks = [
+  { label: "About", href: "#about" },
+  { label: "Programs", href: "#programs" },
+  { label: "Office Spaces", href: "#spaces" },
+  { label: "Apply", href: "#apply" },
+];
+
+const footerActions = [
+  { label: "Start Application", href: "/register" },
+  { label: "Request Space", href: "/space-request" },
+  { label: "Log In", href: "/login" },
+  { label: "Admin Login", href: "/admin/login" },
+];
+
+const socialContacts = [
+  { label: "Facebook", short: "Fb", href: "https://facebook.com/innobizk" },
+  { label: "Telegram", short: "Te", href: "https://t.me/innobizk" },
+  { label: "LinkedIn", short: "Li", href: "https://linkedin.com/company/innobiz-k" },
+  { label: "YouTube", short: "Yt", href: "https://youtube.com/@innobizk" },
+];
+
 export default function HomePage() {
   const { user, isLoading } = useAuth();
   const [heroIndex, setHeroIndex] = useState(0);
@@ -761,19 +782,103 @@ export default function HomePage() {
       </section>
       </Reveal>
 
-      <footer className="border-t border-white/70 bg-white/80">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-8 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
-          <p>innobiz-k Ethiopia. Empowering founders across Ethiopia.</p>
-          <div className="flex flex-wrap gap-4">
-            <a className="transition hover:text-brand-blue" href="#about">
-              About
-            </a>
-            <a className="transition hover:text-brand-blue" href="#spaces">
-              Spaces
-            </a>
-            <a className="transition hover:text-brand-blue" href="#apply">
-              Apply
-            </a>
+      <footer className="border-t border-white/10 bg-brand-ink text-white">
+        <div className="mx-auto w-full max-w-6xl px-6 py-14">
+          <div className="grid gap-10 rounded-[36px] border border-white/10 bg-white/5 p-8 shadow-panel backdrop-blur-sm lg:grid-cols-[1.2fr_0.8fr_0.8fr_0.9fr]">
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="rounded-3xl bg-white/95 px-4 py-3">
+                  <Image alt="innobiz-k Ethiopia" height={52} src="/ink-logo.png" width={92} />
+                </div>
+                <div className="rounded-3xl bg-white/95 px-4 py-3">
+                  <Image alt="Ministry of Innovation and Technology" height={52} src="/ink-collabs/mint.png" width={112} />
+                </div>
+              </div>
+
+              <div>
+                <p className="text-lg font-semibold text-white">innobiz-k Ethiopia</p>
+                <p className="mt-2 max-w-md text-sm leading-7 text-white/70">
+                  A startup incubation and workspace platform connecting founders with programs, facilities, and structured support across Ethiopia.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <a
+                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-white/20 hover:bg-white/10"
+                  href="mailto:admin@innobizk.et"
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/45">Email</p>
+                  <p className="mt-2 text-sm font-medium text-white/85">admin@innobizk.et</p>
+                </a>
+                <a
+                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-white/20 hover:bg-white/10"
+                  href="tel:+251913778100"
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/45">Phone</p>
+                  <p className="mt-2 text-sm font-medium text-white/85">+251 (0)91 377 8100</p>
+                </a>
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/45">Location</p>
+                  <p className="mt-2 text-sm font-medium text-white/85">Addis Ababa, Ethiopia</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/45">Fax</p>
+                  <p className="mt-2 text-sm font-medium text-white/85">Administrative desk</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/55">Portal</p>
+              <div className="mt-5 flex flex-col gap-3 text-sm text-white/75">
+                {footerLinks.map((item) => (
+                  <a className="transition hover:text-white" href={item.href} key={item.label}>
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/55">Actions</p>
+              <div className="mt-5 flex flex-col gap-3 text-sm text-white/75">
+                {footerActions.map((item) => (
+                  <Link className="transition hover:text-white" href={item.href} key={item.label}>
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/55">Stay Connected</p>
+              <p className="mt-4 text-sm leading-7 text-white/70">
+                Follow announcements, founder stories, and program updates through innobiz-k communication channels.
+              </p>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                {socialContacts.map((item) => (
+                  <a
+                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-white/20 hover:bg-white/10"
+                    href={item.href}
+                    key={item.label}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-xs font-semibold text-brand-ink">
+                        {item.short}
+                      </span>
+                      <span className="text-sm font-medium text-white/85">{item.label}</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 border-t border-white/10 pt-5 text-xs text-white/50 sm:flex-row sm:items-center sm:justify-between">
+            <p>innobiz-k Ethiopia. Built for startup applications, space requests, and incubation workflows.</p>
+            <p>Powered with institutional support from MInT and innobiz-k ecosystem partners.</p>
           </div>
         </div>
       </footer>
