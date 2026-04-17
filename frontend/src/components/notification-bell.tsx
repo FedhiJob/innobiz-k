@@ -229,7 +229,14 @@ export const NotificationBell = ({ variant = "light" }: { variant?: "light" | "d
       </button>
 
       {open ? (
-        <div className="absolute right-0 z-[80] mt-3 w-80 rounded-3xl border border-white/70 bg-white/95 p-4 shadow-panel backdrop-blur">
+        <>
+          <button
+            aria-label="Close notifications"
+            className="fixed inset-0 z-[109] bg-brand-ink/10 backdrop-blur-[1px] md:hidden"
+            onClick={() => setOpen(false)}
+            type="button"
+          />
+          <div className="fixed inset-x-3 top-20 z-[120] max-h-[calc(100vh-6.5rem)] overflow-hidden rounded-[28px] border border-white/70 bg-white/95 p-4 shadow-panel backdrop-blur md:absolute md:right-0 md:left-auto md:top-full md:mt-3 md:w-80 md:max-h-none md:rounded-3xl">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-brand-ink">Notifications</p>
             <button
@@ -241,7 +248,7 @@ export const NotificationBell = ({ variant = "light" }: { variant?: "light" | "d
             </button>
           </div>
           {error ? <p className="mt-2 text-xs text-brand-red">{error}</p> : null}
-          <div className="mt-3 max-h-80 space-y-2 overflow-y-auto pr-1">
+          <div className="mt-3 max-h-[calc(100vh-14rem)] space-y-2 overflow-y-auto pr-1 md:max-h-80">
             {loading ? (
               <p className="text-sm text-slate-500">Loading notifications...</p>
             ) : items.length === 0 ? (
@@ -283,11 +290,12 @@ export const NotificationBell = ({ variant = "light" }: { variant?: "light" | "d
               </Link>
             </div>
           ) : null}
-        </div>
+          </div>
+        </>
       ) : null}
 
       {pendingToast ? (
-        <div className="pointer-events-none absolute right-0 top-12 z-[90] w-72 rounded-2xl border border-brand-blue/20 bg-white/95 p-3 shadow-lg">
+        <div className="pointer-events-none fixed inset-x-4 bottom-4 z-[130] rounded-2xl border border-brand-blue/20 bg-white/95 p-3 shadow-lg md:absolute md:right-0 md:top-12 md:bottom-auto md:left-auto md:w-72">
           <p className="text-xs font-semibold uppercase tracking-wide text-brand-blue">New notification</p>
           <p className="mt-1 text-sm font-semibold text-brand-ink">{pendingToast.title}</p>
           <p className="mt-1 text-xs text-slate-600">{pendingToast.message}</p>
