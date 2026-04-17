@@ -108,8 +108,8 @@ export function ReportShareModal({
     : [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 py-6">
-      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/70 bg-white/95 p-6 shadow-panel backdrop-blur-sm">
+    <div className="fixed inset-0 z-[140] flex items-start justify-center overflow-y-auto bg-slate-900/50 px-4 py-20 md:items-center md:py-6">
+      <div className="w-full max-w-2xl max-h-[calc(100vh-2rem)] overflow-y-auto rounded-3xl border border-white/70 bg-white/95 p-6 shadow-panel backdrop-blur-sm md:max-h-[90vh]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h3 className="text-xl font-semibold text-brand-ink">Share monthly report</h3>
