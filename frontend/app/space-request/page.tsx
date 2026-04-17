@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { officeSpaceApi, spaceRequestApi } from "@/lib/api";
 import type { OfficeSpace } from "@/types/api";
@@ -18,6 +18,14 @@ const resourceOptions = [
 ];
 
 export default function SpaceRequestPage() {
+  return (
+    <Suspense fallback={<SpaceRequestPageFallback />}>
+      <SpaceRequestPageContent />
+    </Suspense>
+  );
+}
+
+function SpaceRequestPageContent() {
   const searchParams = useSearchParams();
   const requestedSpaceId = searchParams.get("spaceId") ?? "";
   const requestedSpaceName = searchParams.get("spaceName") ?? "";
@@ -336,6 +344,21 @@ export default function SpaceRequestPage() {
             {submitting ? "Submitting..." : "Submit Request"}
           </button>
         </form>
+      </section>
+    </main>
+  );
+}
+
+function SpaceRequestPageFallback() {
+  return (
+    <main className="min-h-screen px-6 py-10 text-brand-ink">
+      <section className="mx-auto mt-8 w-full max-w-5xl space-y-6">
+        <div className="rounded-[32px] border border-white/70 bg-white/90 p-8 shadow-panel">
+          <h1 className="text-3xl font-bold text-brand-ink">Request Office Space & Facilities</h1>
+          <p className="mt-2 text-base text-slate-600">
+            Loading the request form and your selected space details.
+          </p>
+        </div>
       </section>
     </main>
   );
