@@ -1012,9 +1012,7 @@ The admin system is designed to support real operational work, not just record k
 - distribute reports intentionally
 - treat every status change as an auditable decision
 
-If needed later, this manual can also be converted into:
+If needed later, this manual can also be expanded into:
 
-- PDF
-- DOCX
 - branded client-facing handbook
 - onboarding checklist for new admin staff
