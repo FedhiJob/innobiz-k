@@ -6,6 +6,7 @@ This file tracks exactly what you need to provide while development continues.
 
 1. PostgreSQL database URL for development.
    - Provide: `DATABASE_URL`
+   - Optional but recommended for Neon/pooled setups: `DIRECT_DATABASE_URL`
 2. JWT secret (minimum 32 chars).
    - Provide: `JWT_SECRET`
 

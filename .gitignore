@@ -11,3 +11,4 @@ frontend/.env
 frontend/tsconfig.tsbuildinfo
 .DS_Store
 *.log
+docs/generate_admin_manual.py

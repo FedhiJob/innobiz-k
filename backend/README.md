@@ -74,4 +74,5 @@ npm test
 
 - Use `DATABASE_URL` for the application runtime connection.
 - Use `DIRECT_DATABASE_URL` for Prisma migrations and integration tests.
+- If `DIRECT_DATABASE_URL` is not set, the backend Prisma scripts fall back to `DATABASE_URL` so deploys and local Prisma commands still work on hosts that only expose one Postgres URL.
 - This avoids flaky pooled-connection behavior during long-running test or migration sessions.
