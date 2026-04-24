@@ -7,6 +7,7 @@ import { MobileMenuButton } from "@/components/mobile-menu-button";
 import { useAuth } from "@/context/auth-context";
 import { Reveal } from "@/components/reveal";
 import { officeSpaceApi, updatesApi } from "@/lib/api";
+import { resolveHeroUpdateMediaUrl } from "@/lib/media";
 import type { HeroUpdate, OfficeSpace } from "@/types/api";
 
 const impactMetrics = [
@@ -118,7 +119,7 @@ const mapUpdatesToSlides = (updates: HeroUpdate[]): HeroSlide[] =>
     ctaLabel: update.ctaLabel ?? undefined,
     ctaUrl: update.ctaUrl ?? undefined,
     createdAt: update.createdAt,
-    mediaUrl: update.mediaUrl ?? undefined,
+    mediaUrl: resolveHeroUpdateMediaUrl(update) ?? undefined,
     mediaType: update.mediaType ?? undefined,
   }));
 
