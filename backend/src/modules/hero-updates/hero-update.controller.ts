@@ -35,7 +35,7 @@ const buildMediaUrl = (req: Request, fileName: string | null) => {
   if (!fileName) {
     return null;
   }
-  return `${getPublicBaseUrl(req)}/uploads/hero-updates/${fileName}`;
+  return `${getPublicBaseUrl(req)}/api/updates/media/${encodeURIComponent(fileName)}`;
 };
 
 const serializeHeroUpdate = (req: Request, update: {
