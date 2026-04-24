@@ -7,6 +7,7 @@ import { useAuth } from "@/context/auth-context";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDateTime } from "@/lib/format";
 import { InkLoader } from "@/components/ink-loader";
+import { resolveHeroUpdateMediaUrl } from "@/lib/media";
 import { ReportShareModal } from "@/components/report-share-modal";
 import type { AdminStats, HeroUpdate, PaginatedAdminApplications } from "@/types/api";
 
@@ -418,6 +419,11 @@ export default function AdminDashboardPage() {
             ) : (
               updates.map((update) => (
                 <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3" key={update.id}>
+                  {(() => {
+                    const resolvedMediaUrl = resolveHeroUpdateMediaUrl(update);
+
+                    return (
+                      <>
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold text-brand-ink">{update.title}</p>
@@ -434,12 +440,12 @@ export default function AdminDashboardPage() {
                     </span>
                   </div>
                   <p className="mt-2 text-sm text-slate-600 line-clamp-3">{update.message}</p>
-                  {update.mediaUrl ? (
+                  {resolvedMediaUrl ? (
                     <div className="mt-3 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50">
                       {update.mediaType === "VIDEO" ? (
-                        <video className="h-40 w-full object-cover" controls src={update.mediaUrl} />
+                        <video className="h-40 w-full object-cover" controls src={resolvedMediaUrl} />
                       ) : (
-                        <img alt={update.title} className="h-40 w-full object-cover" src={update.mediaUrl} />
+                        <img alt={update.title} className="h-40 w-full object-cover" src={resolvedMediaUrl} />
                       )}
                     </div>
                   ) : null}
@@ -466,6 +472,9 @@ export default function AdminDashboardPage() {
                       Delete
                     </button>
                   </div>
+                      </>
+                    );
+                  })()}
                 </div>
               ))
             )}
